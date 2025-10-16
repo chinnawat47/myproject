@@ -1,0 +1,341 @@
+{% load static %}
+<div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden backdrop-blur-sm">
+  <!-- Header with Enhanced Gradient -->
+  <div class="relative px-6 py-5 overflow-hidden" style="background: linear-gradient(135deg, #41A67E 0%, #1055C9 50%, #05339C 100%);">
+    <!-- Animated Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-0 left-0 w-32 h-32 bg-white rounded-full -translate-x-16 -translate-y-16 animate-pulse"></div>
+      <div class="absolute bottom-0 right-0 w-24 h-24 bg-white rounded-full translate-x-12 translate-y-12 animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+    
+    <div class="relative flex items-center justify-between">
+      <div class="flex items-center">
+        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mr-3 backdrop-blur-sm">
+          <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div>
+          <h4 class="text-xl font-bold text-white">ถาม-ตอบ (FAQ)</h4>
+          <p class="text-white text-opacity-80 text-sm">ผู้ช่วยอัจฉริยะพร้อมตอบคำถาม</p>
+        </div>
+      </div>
+      
+      <!-- Status Indicator -->
+      <div class="flex items-center space-x-2">
+        <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+        <span class="text-white text-opacity-80 text-sm font-medium">ออนไลน์</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Output Panel with Enhanced Design -->
+  <div class="p-6">
+    <div 
+      id="chat-output" 
+      class="h-48 sm:h-56 md:h-64 overflow-auto p-5 border-2 border-gray-100 rounded-2xl relative transition-all duration-300 hover:border-gray-200"
+      style="background: linear-gradient(145deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);"
+      role="log"
+      aria-label="ประวัติการสนทนา"
+      aria-live="polite"
+    >
+      <!-- Welcome Message -->
+      <div class="text-center py-8 space-y-4">
+        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl flex items-center justify-center shadow-lg">
+          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+        </div>
+        <div>
+          <h5 class="text-lg font-semibold text-gray-700 mb-2">ยินดีต้อนรับ! 👋</h5>
+          <p class="text-gray-500 text-sm leading-relaxed max-w-xs mx-auto">
+            พิมพ์คำถามของคุณด้านล่าง<br>
+            เราพร้อมช่วยเหลือคุณตลอด 24 ชั่วโมง
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Input Section -->
+    <div class="mt-6 space-y-4">
+      <!-- Input Container -->
+      <div class="relative group">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-green-400 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+        <div class="relative flex items-center bg-white border-2 border-gray-200 rounded-2xl focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-300 shadow-lg hover:shadow-xl">
+          <div class="flex-1 relative">
+            <input 
+              id="chat-input" 
+              type="text"
+              class="w-full px-6 py-4 bg-transparent rounded-2xl focus:outline-none text-gray-700 placeholder-gray-400 text-base"
+              placeholder="พิมพ์คำถามของคุณที่นี่..."
+              aria-label="พิมพ์คำถามของคุณ"
+              maxlength="500"
+            />
+            <!-- Character Counter -->
+            <div class="absolute bottom-1 right-4 text-xs text-gray-400" id="char-counter">0/500</div>
+          </div>
+          
+          <!-- Send Button -->
+          <button 
+            id="chat-send" 
+            class="m-2 px-6 py-3 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-200 active:scale-95 shadow-lg hover:shadow-xl flex items-center justify-center min-w-[100px] group"
+            style="background: linear-gradient(135deg, #1055C9 0%, #41A67E 100%);"
+            aria-label="ส่งข้อความ"
+            type="button"
+          >
+            <svg class="w-5 h-5 mr-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            <span>ส่ง</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Enhanced Quick Actions -->
+      <div class="space-y-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-1 h-4 bg-gradient-to-b from-blue-500 to-green-500 rounded-full"></div>
+          <span class="text-sm font-medium text-gray-600">คำถามยอดนิยม</span>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <button class="group p-4 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1 text-left" onclick="document.getElementById('chat-input').value='มีกิจกรรมอะไรบ้าง?'; document.getElementById('chat-send').click();">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-700 text-sm">กิจกรรม</p>
+                <p class="text-xs text-gray-500">มีกิจกรรมอะไรบ้าง?</p>
+              </div>
+            </div>
+          </button>
+
+          <button class="group p-4 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border border-green-200 rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1 text-left" onclick="document.getElementById('chat-input').value='วิธีการสมัครอาสาสมัคร'; document.getElementById('chat-send').click();">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-700 text-sm">สมัครสมาชิก</p>
+                <p class="text-xs text-gray-500">วิธีการสมัคร</p>
+              </div>
+            </div>
+          </button>
+
+          <button class="group p-4 bg-gradient-to-br from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 border border-purple-200 rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-1 text-left sm:col-span-2 lg:col-span-1" onclick="document.getElementById('chat-input').value='ติดต่อเจ้าหน้าที่'; document.getElementById('chat-send').click();">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-700 text-sm">ติดต่อเรา</p>
+                <p class="text-xs text-gray-500">ติดต่อเจ้าหน้าที่</p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="px-6 py-3 bg-gray-50 border-t border-gray-100">
+    <div class="flex items-center justify-between text-xs text-gray-500">
+      <div class="flex items-center space-x-2">
+        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+        <span>ระบบตอบอัตโนมัติ</span>
+      </div>
+      <div class="flex items-center space-x-1">
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"></path>
+        </svg>
+        <span>Powered by AI</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'volunteer_app/js/chatbot.js' %}"></script>
+<script>
+  initChatbot("{% url 'volunteer_app:chatbot_api' %}");
+  
+  // Character counter
+  document.getElementById('chat-input').addEventListener('input', function() {
+    const counter = document.getElementById('char-counter');
+    const length = this.value.length;
+    counter.textContent = `${length}/500`;
+    counter.style.color = length > 450 ? '#ef4444' : '#9ca3af';
+  });
+  
+  // Enter key support
+  document.getElementById('chat-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('chat-send').click();
+    }
+  });
+</script>
+
+<style>
+body {
+  box-sizing: border-box;
+}
+
+/* Premium Scrollbar */
+#chat-output::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chat-output::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.5);
+  border-radius: 10px;
+}
+
+#chat-output::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #41A67E 0%, #1055C9 100%);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: all 0.3s ease;
+}
+
+#chat-output::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #369968 0%, #0d47a1 100%);
+  background-clip: content-box;
+}
+
+/* Firefox scrollbar */
+#chat-output {
+  scrollbar-width: thin;
+  scrollbar-color: #41A67E rgba(241, 245, 249, 0.5);
+}
+
+/* Enhanced Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.chat-message {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.user-message {
+  animation: slideInRight 0.4s ease-out;
+}
+
+.bot-message {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+/* Button Hover Effects */
+#chat-send:hover {
+  background: linear-gradient(135deg, #0d47a1 0%, #369968 100%) !important;
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 10px 25px rgba(16, 85, 201, 0.3);
+}
+
+#chat-send:active {
+  transform: scale(0.98);
+}
+
+/* Input Focus Effects */
+#chat-input:focus {
+  transform: translateY(-1px);
+}
+
+/* Loading Animation */
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+.typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  space-x: 1px;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #41A67E;
+  display: inline-block;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 640px) {
+  #chat-output {
+    font-size: 14px;
+    padding: 1rem;
+  }
+  
+  .quick-action-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Glassmorphism Effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #41A67E 0%, #1055C9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+</style>

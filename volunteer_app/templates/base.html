@@ -1,0 +1,207 @@
+{% load static %}
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="แพลตฟอร์มระบบจิตอาสา Volunteer System จัดการกิจกรรมและกลุ่มจิตอาสา">
+  <title>{% block title %}Volunteer System{% endblock %}</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#41A67E',
+            darkBlue: '#05339C',
+            blue: '#1055C9',
+            gold: '#E5C95F',
+          },
+          fontFamily: {
+            'thai': ['Sarabun', 'Noto Sans Thai', 'sans-serif'],
+          },
+          boxShadow: {
+            'nav': '0 4px 6px -1px rgba(0,0,0,0.1)',
+            'card': '0 10px 15px -3px rgba(0,0,0,0.1)',
+          }
+        },
+      },
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'volunteer_app/css/styles.css' %}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-800 font-thai min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="bg-primary shadow-nav sticky top-0 z-50">
+    <div class="container mx-auto flex flex-wrap justify-between items-center px-4 py-3">
+      <!-- Logo -->
+      <a href="{% url 'volunteer_app:index' %}" class="text-white font-bold text-2xl hover:text-gold transition-colors">
+        Volunteer System
+      </a>
+
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center space-x-6">
+        <a href="{% url 'volunteer_app:activities' %}" class="text-white hover:text-gold transition-colors">กิจกรรมทั้งหมด</a>
+        <a href="{% url 'volunteer_app:groups' %}" class="text-white hover:text-gold transition-colors">กลุ่ม</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'volunteer_app:profile' %}" class="text-white hover:text-gold transition-colors">โปรไฟล์</a>
+          <form method="POST" action="{% url 'volunteer_app:logout' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-white hover:text-gold bg-transparent border-none p-0 cursor-pointer">ออกจากระบบ</button>
+          </form>
+        {% else %}
+          <a href="{% url 'volunteer_app:login' %}" class="text-white hover:text-gold transition-colors">เข้าสู่ระบบ</a>
+          <a href="{% url 'volunteer_app:register' %}" class="text-white hover:text-gold transition-colors">สมัครสมาชิก</a>
+        {% endif %}
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button id="mobileMenuBtn" class="md:hidden text-white hover:text-gold transition-colors" aria-label="Toggle menu">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+      </button>
+
+      <!-- Mobile Menu -->
+      <div id="mobileMenu" class="md:hidden mt-3 space-y-2 hidden">
+        <a href="{% url 'volunteer_app:activities' %}" class="block text-white/90 hover:text-gold transition-colors">กิจกรรมทั้งหมด</a>
+        <a href="{% url 'volunteer_app:groups' %}" class="block text-white/90 hover:text-gold transition-colors">กลุ่ม</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'volunteer_app:profile' %}" class="block text-white/90 hover:text-gold transition-colors">โปรไฟล์</a>
+          <form method="POST" action="{% url 'volunteer_app:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="text-left w-full text-white/90 hover:text-gold transition-colors">ออกจากระบบ</button>
+          </form>
+        {% else %}
+          <a href="{% url 'volunteer_app:login' %}" class="block text-white/90 hover:text-gold transition-colors">เข้าสู่ระบบ</a>
+          <a href="{% url 'volunteer_app:register' %}" class="block text-white/90 hover:text-gold transition-colors">สมัครสมาชิก</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Layout -->
+  <main class="container mx-auto mt-6 px-4 flex-1">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+      <!-- Content -->
+      <div class="lg:col-span-3 space-y-6">
+        {% block content %}{% endblock %}
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="lg:col-span-1 space-y-6">
+        {% include "chatbot_widget.html" %}
+
+        <!-- Facebook Card -->
+        <div class="bg-white p-6 rounded-xl shadow-card">
+          <h3 class="font-semibold mb-4 text-darkBlue flex items-center">
+            <i class="fab fa-facebook text-blue mr-2"></i>ติดตามเรา
+          </h3>
+          <div id="fb-root"></div>
+          <div class="fb-page" data-href="https://www.facebook.com/YOUR_PAGE_URL" data-tabs="timeline" data-width="" data-height="300" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
+            <blockquote cite="https://www.facebook.com/YOUR_PAGE_URL" class="fb-xfbml-parse-ignore">
+              <a href="https://www.facebook.com/YOUR_PAGE_URL" class="text-blue hover:text-darkBlue transition-colors">Facebook Page</a>
+            </blockquote>
+          </div>
+          <script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v17.0"></script>
+        </div>
+
+        <!-- Quick Stats Card -->
+        <div class="bg-white p-6 rounded-xl shadow-card">
+          <h3 class="font-semibold mb-4 text-darkBlue flex items-center">
+            <i class="fas fa-chart-line mr-2 text-primary"></i>สถิติด่วน
+          </h3>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center p-3 bg-primary/10 rounded-lg">
+              <span class="text-sm text-gray-600">กิจกรรมทั้งหมด</span>
+              <span class="font-bold text-primary">{{ total_activities|default:"0" }}</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gold/10 rounded-lg">
+              <span class="text-sm text-gray-600">จิตอาสาทั้งหมด</span>
+              <span class="font-bold text-gold">{{ total_volunteers|default:"0" }}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-darkBlue text-white py-8 mt-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <h4 class="font-semibold mb-4 flex items-center">
+            <i class="fas fa-hands-helping mr-2 text-gold"></i>ระบบจิตอาสา
+          </h4>
+          <p class="text-gray-300 text-sm leading-relaxed">
+            แพลตฟอร์มสำหรับการจัดการกิจกรรมจิตอาสา เพื่อสร้างสังคมที่ดีร่วมกัน
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">ลิงก์ด่วน</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="{% url 'volunteer_app:activities' %}" class="text-gray-300 hover:text-gold transition-colors">กิจกรรมทั้งหมด</a></li>
+            <li><a href="{% url 'volunteer_app:groups' %}" class="text-gray-300 hover:text-gold transition-colors">กลุ่มจิตอาสา</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-gold transition-colors">เกี่ยวกับเรา</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-4">ติดตามเรา</h4>
+          <div class="flex space-x-4 text-xl">
+            <a href="#" class="text-gray-300 hover:text-gold"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-gray-300 hover:text-gold"><i class="fab fa-line"></i></a>
+            <a href="#" class="text-gray-300 hover:text-gold"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+      </div>
+      <hr class="border-gray-600 my-6">
+      <div class="text-center text-gray-400 text-sm">
+        &copy; 2024 ระบบจิตอาสา. สงวนลิขสิทธิ์.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile menu toggle script -->
+  <script>
+    const btn = document.getElementById('mobileMenuBtn');
+    const menu = document.getElementById('mobileMenu');
+
+    btn.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+
+  <style>
+    /* Custom scrollbar for chat output */
+    #chat-output::-webkit-scrollbar { width: 8px; }
+    #chat-output::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 4px; }
+    #chat-output::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+
+    /* Hover underline for links */
+    a:hover { text-decoration: underline; }
+
+    /* Card hover effect */
+    .shadow-card:hover { transform: translateY(-2px); transition: all 0.3s ease; }
+  </style>
+
+</body>
+</html>

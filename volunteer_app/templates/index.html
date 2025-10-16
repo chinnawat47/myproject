@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}หน้าแรก - ระบบจิตอาสา{% endblock %}
+
+{% block meta %}
+<meta name="description" content="ระบบจิตอาสาออนไลน์ สมัครกิจกรรมจิตอาสา จัดการกลุ่ม และยืนยันชั่วโมงผ่าน QR code อย่างง่ายดาย">
+<meta name="keywords" content="จิตอาสา, กิจกรรม, อาสาสมัคร, ชุมชน, สิ่งแวดล้อม">
+<meta property="og:title" content="ระบบจิตอาสา - ร่วมสร้างสังคมที่ดีขึ้น">
+<meta property="og:description" content="เข้าร่วมกิจกรรมจิตอาสาและสร้างการเปลี่ยนแปลงเชิงบวกให้กับสังคม">
+{% endblock %}
+
+{% block content %}
+<style>
+body {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #41A67E;
+  --dark-blue: #05339C;
+  --blue: #1055C9;
+  --gold: #E5C95F;
+}
+
+.bg-primary { background-color: var(--primary); }
+.bg-dark-blue { background-color: var(--dark-blue); }
+.bg-blue { background-color: var(--blue); }
+.bg-gold { background-color: var(--gold); }
+.text-primary { color: var(--primary); }
+.text-dark-blue { color: var(--dark-blue); }
+.text-blue { color: var(--blue); }
+.text-gold { color: var(--gold); }
+.border-primary { border-color: var(--primary); }
+.hover\:bg-dark-blue:hover { background-color: var(--dark-blue); }
+.hover\:bg-primary-dark:hover { background-color: #2d7a5a; }
+
+.hero-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, #2d7a5a 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2d7a5a 0%, var(--dark-blue) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(65, 166, 126, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--dark-blue) 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--dark-blue) 0%, #041f5c 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 85, 201, 0.3);
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+}
+</style>
+
+<!-- Hero Section -->
+<section class="hero-gradient text-white py-16 lg:py-24 px-4 sm:px-6 lg:px-8 rounded-2xl mb-12" role="banner">
+  <div class="max-w-7xl mx-auto text-center">
+    <h1 class="hero-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight">
+      ยินดีต้อนรับสู่ระบบจิตอาสา
+    </h1>
+    <p class="hero-subtitle text-lg sm:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed opacity-95">
+      ร่วมสร้างการเปลี่ยนแปลงเชิงบวกให้กับสังคม ดูและสมัครกิจกรรม จัดการกลุ่ม และยืนยันชั่วโมงผ่าน QR code อย่างง่ายดาย
+    </p>
+    
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
+      <a href="{% url 'volunteer_app:activities' %}" 
+         class="btn-primary w-full sm:w-auto px-8 py-4 text-white rounded-xl font-semibold text-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 transition-all duration-300"
+         aria-label="ดูกิจกรรมทั้งหมดที่เปิดรับสมัคร">
+        <span class="flex items-center justify-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          กิจกรรมทั้งหมด
+        </span>
+      </a>
+      
+      <a href="{% url 'volunteer_app:qr_scan' %}" 
+         class="btn-secondary w-full sm:w-auto px-8 py-4 text-white rounded-xl font-semibold text-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 transition-all duration-300"
+         aria-label="สแกน QR Code เพื่อยืนยันชั่วโมงจิตอาสา">
+        <span class="flex items-center justify-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h2M4 4h5v5H4V4zm11 0h5v5h-5V4zM4 15h5v5H4v-5z"></path>
+          </svg>
+          สแกน QR ยืนยันชั่วโมง
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Activities Section -->
+<section class="mb-16 px-4 sm:px-6 lg:px-8" role="main" aria-labelledby="featured-activities">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 id="featured-activities" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-dark-blue mb-4">
+        กิจกรรมเด่น
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        เลือกกิจกรรมที่คุณสนใจและร่วมสร้างการเปลี่ยนแปลงเชิงบวกให้กับสังคม
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10">
+      
+      <!-- กิจกรรม 1: ปลูกต้นไม้ -->
+      <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover focus-within:ring-4 focus-within:ring-primary focus-within:ring-opacity-50">
+        <div class="relative overflow-hidden">
+          <img src="https://www.seub.or.th/seubweb/wp-content/uploads/2024/01/%E0%B8%9B%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%9B%E0%B9%88%E0%B8%B2.jpg" 
+               alt="กิจกรรมปลูกต้นไม้ในชุมชน มีอาสาสมัครกำลังปลูกต้นไม้เพื่อสิ่งแวดล้อม" 
+               class="w-full h-56 sm:h-64 object-cover transition-transform duration-300 hover:scale-105"
+               loading="lazy"
+               onerror="this.src=''; this.alt='รูปภาพไม่สามารถโหลดได้'; this.style.display='none';">
+          <div class="absolute top-4 left-4">
+            <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">สิ่งแวดล้อม</span>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-bold text-primary text-xl lg:text-2xl mb-3">ปลูกต้นไม้</h3>
+          <p class="text-gray-700 mb-6 leading-relaxed">
+            ร่วมกิจกรรมปลูกต้นไม้เพื่อสิ่งแวดล้อมและชุมชนของเรา สร้างพื้นที่สีเขียวและลดมลพิษทางอากาศ
+          </p>
+          <a href="{% url 'volunteer_app:activities' %}" 
+             class="inline-flex items-center px-6 py-3 bg-blue text-white rounded-xl font-semibold hover:bg-dark-blue transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue focus:ring-opacity-50 shadow-md hover:shadow-lg"
+             aria-label="ดูรายละเอียดกิจกรรมปลูกต้นไม้">
+            ดูรายละเอียด
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- กิจกรรม 2: บริจาคอาหารสุนัข -->
+      <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover focus-within:ring-4 focus-within:ring-primary focus-within:ring-opacity-50">
+        <div class="relative overflow-hidden">
+          <img src="https://cdn.zipeventapp.com/blog/2024/06/2024-06-25_07-14-36_bn-dog-food-blog-985x515.png" 
+               alt="กิจกรรมบริจาคอาหารสุนัข มีอาสาสมัครกำลังให้อาหารสุนัขจรจัด" 
+               class="w-full h-56 sm:h-64 object-cover transition-transform duration-300 hover:scale-105"
+               loading="lazy">
+          <div class="absolute top-4 left-4">
+            <span class="bg-gold text-dark-blue px-3 py-1 rounded-full text-sm font-medium">สวัสดิการสัตว์</span>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-bold text-primary text-xl lg:text-2xl mb-3">บริจาคอาหารสุนัข</h3>
+          <p class="text-gray-700 mb-6 leading-relaxed">
+            ร่วมกิจกรรมบริจาคอาหารให้สุนัขจรจัดและสัตว์เลี้ยงที่ต้องการความช่วยเหลือ แสดงความเมตตาต่อสัตว์
+          </p>
+          <a href="{% url 'volunteer_app:activities' %}" 
+             class="inline-flex items-center px-6 py-3 bg-blue text-white rounded-xl font-semibold hover:bg-dark-blue transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue focus:ring-opacity-50 shadow-md hover:shadow-lg"
+             aria-label="ดูรายละเอียดกิจกรรมบริจาคอาหารสุนัข">
+            ดูรายละเอียด
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- กิจกรรม 3: บริจาคเลือด -->
+      <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover focus-within:ring-4 focus-within:ring-primary focus-within:ring-opacity-50 md:col-span-2 xl:col-span-1">
+        <div class="relative overflow-hidden">
+          <img src="https://hdmall.co.th/blog/wp-content/uploads/2024/02/%E0%B8%82%E0%B9%89%E0%B8%AD%E0%B8%84%E0%B8%A7%E0%B8%A3%E0%B8%9B%E0%B8%8F%E0%B8%B4%E0%B8%9A%E0%B8%B1%E0%B8%95%E0%B8%B4%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%87%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%88%E0%B8%B2%E0%B8%84%E0%B9%82%E0%B8%A5%E0%B8%AB%E0%B8%B4%E0%B8%95-scaled.jpg.webp" 
+               alt="กิจกรรมบริจาคเลือด มีเจ้าหน้าที่การแพทย์และอาสาสมัครที่กำลังบริจาคเลือด" 
+               class="w-full h-56 sm:h-64 object-cover transition-transform duration-300 hover:scale-105"
+               loading="lazy">
+          <div class="absolute top-4 left-4">
+            <span class="bg-blue text-white px-3 py-1 rounded-full text-sm font-medium">สาธารณสุข</span>
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-bold text-primary text-xl lg:text-2xl mb-3">บริจาคเลือด</h3>
+          <p class="text-gray-700 mb-6 leading-relaxed">
+            เข้าร่วมบริจาคเลือดเพื่อช่วยชีวิตผู้ป่วยที่ต้องการเลือด การบริจาคครั้งหนึ่งสามารถช่วยชีวิตได้ถึง 3 คน
+          </p>
+          <a href="{% url 'volunteer_app:activities' %}" 
+             class="inline-flex items-center px-6 py-3 bg-blue text-white rounded-xl font-semibold hover:bg-dark-blue transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue focus:ring-opacity-50 shadow-md hover:shadow-lg"
+             aria-label="ดูรายละเอียดกิจกรรมบริจาคเลือด">
+            ดูรายละเอียด
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </article>
+      
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="bg-gradient-to-r from-primary to-blue text-white py-16 px-4 sm:px-6 lg:px-8 rounded-2xl mx-4 sm:mx-6 lg:mx-8 mb-8" role="complementary">
+  <div class="max-w-4xl mx-auto text-center">
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
+      พร้อมที่จะเริ่มต้นการเป็นจิตอาสาแล้วหรือยัง?
+    </h2>
+    <p class="text-lg sm:text-xl mb-8 opacity-95">
+      เข้าร่วมชุมชนจิตอาสาและสร้างผลกระทบเชิงบวกต่อสังคมไปด้วยกัน
+    </p>
+    <a href="{% url 'volunteer_app:activities' %}" 
+       class="inline-flex items-center px-8 py-4 bg-white text-primary rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 shadow-lg hover:shadow-xl"
+       aria-label="เริ่มต้นเป็นจิตอาสาวันนี้">
+      เริ่มต้นวันนี้
+      <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+      </svg>
+    </a>
+  </div>
+</section>
+{% endblock %}

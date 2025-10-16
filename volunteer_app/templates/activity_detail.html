@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-full bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Main Activity Card -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <!-- Header Section -->
+      <div class="bg-gradient-to-r from-[#41A67E] to-[#1055C9] px-6 py-8 text-white">
+        <h1 class="text-2xl sm:text-3xl font-bold mb-3" id="activity-title">{{ activity.title }}</h1>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 text-sm opacity-90">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+            </svg>
+            <span>{{ activity.datetime|date:"Y-m-d H:i" }}</span>
+          </div>
+          <span class="hidden sm:inline text-white/60">•</span>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+            </svg>
+            <span>{{ activity.location }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Section -->
+      <div class="p-6">
+        <!-- Description -->
+        <section class="mb-8">
+          <h2 class="text-lg font-semibold text-[#05339C] mb-3">รายละเอียดกิจกรรม</h2>
+          <p class="text-gray-700 leading-relaxed">{{ activity.description }}</p>
+        </section>
+
+        <!-- Key Information Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8" aria-labelledby="key-info-heading">
+          <h2 id="key-info-heading" class="sr-only">ข้อมูลสำคัญของกิจกรรม</h2>
+          
+          <!-- Hours Reward Card -->
+          <div class="bg-gradient-to-br from-[#E5C95F]/10 to-[#E5C95F]/5 border border-[#E5C95F]/20 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-[#E5C95F] rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-600">ชั่วโมงที่ได้รับ</p>
+                <p class="text-xl font-bold text-[#05339C]">{{ activity.hours_reward }} ชั่วโมง</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Participants Card -->
+          <div class="bg-gradient-to-br from-[#41A67E]/10 to-[#41A67E]/5 border border-[#41A67E]/20 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-[#41A67E] rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-600">ผู้สมัคร</p>
+                <p class="text-xl font-bold text-[#05339C]">{{ activity.spots_taken }} / {{ activity.capacity }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Registration Section -->
+        <section class="mb-8" aria-labelledby="registration-heading">
+          <h2 id="registration-heading" class="sr-only">การสมัครกิจกรรม</h2>
+          
+          {% if can_signup %}
+            {% if user.is_authenticated %}
+              {% if user_signed %}
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                      </svg>
+                    </div>
+                    <span class="text-green-800 font-medium">คุณได้สมัครกิจกรรมนี้แล้ว</span>
+                  </div>
+                </div>
+              {% else %}
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                  <h3 class="text-lg font-semibold text-[#05339C] mb-4">สมัครเข้าร่วมกิจกรรม</h3>
+                  <form method="post" action="{% url 'volunteer_app:activity_signup' activity.pk %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                      <label for="note" class="block text-sm font-medium text-gray-700 mb-2">
+                        หมายเหตุ (ไม่บังคับ)
+                      </label>
+                      <textarea 
+                        id="note"
+                        name="note" 
+                        rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#41A67E] focus:border-[#41A67E] transition-colors resize-none"
+                        placeholder="เพิ่มหมายเหตุหรือข้อความถึงผู้จัดกิจกรรม..."
+                        aria-describedby="note-help"
+                      ></textarea>
+                      <p id="note-help" class="mt-1 text-xs text-gray-500">
+                        ระบุข้อมูลเพิ่มเติมที่ต้องการให้ผู้จัดกิจกรรมทราบ
+                      </p>
+                    </div>
+                    <button 
+                      type="submit"
+                      class="w-full sm:w-auto px-6 py-3 bg-[#41A67E] hover:bg-[#41A67E]/90 text-white font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[#41A67E] focus:ring-offset-2"
+                      aria-describedby="signup-button-help"
+                    >
+                      สมัครเข้าร่วมกิจกรรม
+                    </button>
+                    <p id="signup-button-help" class="text-xs text-gray-500">
+                      กดเพื่อยืนยันการสมัครเข้าร่วมกิจกรรม
+                    </p>
+                  </form>
+                </div>
+              {% endif %}
+            {% else %}
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                <div class="mb-4">
+                  <svg class="w-12 h-12 text-[#1055C9] mx-auto" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-[#05339C] mb-2">ต้องเข้าสู่ระบบก่อนสมัคร</h3>
+                <p class="text-gray-600 mb-4">กรุณาเข้าสู่ระบบเพื่อสมัครเข้าร่วมกิจกรรมนี้</p>
+                <a 
+                  href="{% url 'volunteer_app:login' %}?next={% url 'volunteer_app:activity_detail' activity.pk %}" 
+                  class="inline-flex items-center px-6 py-3 bg-[#1055C9] hover:bg-[#1055C9]/90 text-white font-medium rounded-lg transition-colors focus:ring-2 focus:ring-[#1055C9] focus:ring-offset-2"
+                  aria-label="เข้าสู่ระบบเพื่อสมัครกิจกรรม"
+                >
+                  เข้าสู่ระบบ
+                </a>
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+              <div class="mb-4">
+                <svg class="w-12 h-12 text-gray-400 mx-auto" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div class="inline-flex items-center px-4 py-2 bg-gray-400 text-white font-medium rounded-full">
+                <span>กิจกรรมเต็มแล้ว</span>
+              </div>
+              <p class="mt-2 text-sm text-gray-600">ขออภัย กิจกรรมนี้มีผู้สมัครครบจำนวนแล้ว</p>
+            </div>
+          {% endif %}
+        </section>
+
+        <!-- QR Code Section -->
+        <section class="bg-gray-50 rounded-lg p-6" aria-labelledby="qr-section-heading">
+          <h3 id="qr-section-heading" class="text-lg font-semibold text-[#05339C] mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1z" clip-rule="evenodd"></path>
+            </svg>
+            QR สำหรับยืนยันชั่วโมง
+          </h3>
+          
+          <div class="bg-white rounded-lg p-4 border border-gray-200">
+            <p class="text-sm text-gray-600 mb-3">สำหรับเจ้าหน้าที่แสดงหรือพิมพ์</p>
+            
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">URL</label>
+                <code class="block text-sm bg-gray-100 p-2 rounded border break-all font-mono">{{ request.build_absolute_uri }}/qr/confirm/{{ activity.qr_token }}</code>
+              </div>
+              
+              <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Token</label>
+                <code class="block text-sm bg-gray-100 p-2 rounded border font-mono">{{ activity.qr_token }}</code>
+              </div>
+            </div>
+            
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p class="text-sm text-blue-800">
+                <strong>หมายเหตุ:</strong> QR นี้ฝัง token ที่ชี้ไปยัง endpoint ยืนยัน ซึ่งผู้ใช้ต้องล็อกอินและเป็นผู้สมัครกิจกรรมเท่านั้น
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+body {
+  box-sizing: border-box;
+}
+</style>
+{% endblock %}

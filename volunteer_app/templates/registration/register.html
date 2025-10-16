@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<style>
+  body {
+    box-sizing: border-box;
+  }
+  
+  /* Custom CSS for enhanced styling and accessibility */
+  .form-container {
+    background: linear-gradient(135deg, #f8fafc 0%, rgba(65, 166, 126, 0.05) 100%);
+    min-height: calc(100vh - 120px);
+  }
+  
+  .form-card {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .form-input {
+    transition: all 0.2s ease-in-out;
+    border: 2px solid #e5e7eb;
+  }
+  
+  .form-input:focus {
+    border-color: #41A67E;
+    box-shadow: 0 0 0 3px rgba(65, 166, 126, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  .form-input:hover {
+    border-color: #9ca3af;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #41A67E 0%, #369968 100%);
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 6px -1px rgba(65, 166, 126, 0.3);
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(65, 166, 126, 0.4);
+    background: linear-gradient(135deg, #369968 0%, #2d7a56 100%);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+  
+  .btn-primary:focus {
+    outline: 2px solid #41A67E;
+    outline-offset: 2px;
+  }
+  
+  .error-message {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .field-icon {
+    color: #6b7280;
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .form-input:focus + .field-icon,
+  .form-input:focus ~ .field-icon {
+    color: #41A67E;
+  }
+  
+  /* High contrast for accessibility */
+  .high-contrast {
+    color: #1f2937;
+  }
+  
+  .error-text {
+    color: #dc2626;
+  }
+  
+  /* Custom notification styles */
+  .notification {
+    border-left: 4px solid #1055C9;
+    background-color: rgba(16, 85, 201, 0.05);
+  }
+  
+  /* Focus visible for keyboard navigation */
+  .focus-visible:focus-visible {
+    outline: 2px solid #41A67E;
+    outline-offset: 2px;
+  }
+</style>
+
+<div class="form-container flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- Header Section -->
+    <div class="text-center">
+      <div class="mx-auto h-16 w-16 rounded-full flex items-center justify-center mb-6 shadow-lg" style="background-color: #41A67E;">
+        <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold mb-2 high-contrast" style="color: #05339C;">สมัครสมาชิก</h1>
+      <p class="text-gray-600 text-sm">กรุณากรอกข้อมูลด้วยอีเมล @ubu.ac.th เท่านั้น</p>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="form-card bg-white rounded-2xl p-8">
+      <form method="post" novalidate aria-label="แบบฟอร์มสมัครสมาชิก" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Non-field Errors -->
+        {% if form.non_field_errors %}
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4 error-message" role="alert" aria-live="polite">
+            <div class="flex">
+              <svg class="h-5 w-5 text-red-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+              <div>
+                {{ form.non_field_errors }}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Form Fields -->
+        <div class="space-y-5">
+          {% for field in form %}
+            <div class="form-group">
+              <!-- Field Label -->
+              <label for="{{ field.id_for_label }}" 
+                     class="block text-sm font-semibold text-gray-700 mb-2 high-contrast">
+                {{ field.label }}
+                {% if field.field.required %}
+                  <span class="text-red-500 ml-1" aria-label="ฟิลด์จำเป็น">*</span>
+                {% endif %}
+              </label>
+              
+              <!-- Field Input with Icon -->
+              <div class="relative">
+                {% if 'email' in field.name %}
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                    </svg>
+                  </div>
+                  {% render_field field class="form-input focus-visible w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 placeholder-gray-500" placeholder="example@ubu.ac.th" %}
+                {% elif 'password' in field.name %}
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  {% render_field field class="form-input focus-visible w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 placeholder-gray-500" %}
+                {% else %}
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 field-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  {% render_field field class="form-input focus-visible w-full pl-10 pr-4 py-3 rounded-lg text-gray-900 placeholder-gray-500" %}
+                {% endif %}
+              </div>
+              
+              <!-- Field Errors -->
+              {% if field.errors %}
+                <div class="mt-2 error-message" role="alert" aria-live="polite">
+                  <div class="text-sm error-text flex items-center">
+                    <svg class="h-4 w-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    {{ field.errors }}
+                  </div>
+                </div>
+              {% endif %}
+              
+              <!-- Field Help Text -->
+              {% if field.help_text %}
+                <p class="mt-2 text-xs text-gray-500" id="{{ field.id_for_label }}_help">
+                  {{ field.help_text }}
+                </p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Email Domain Notice -->
+        <div class="notification rounded-lg p-4">
+          <div class="flex">
+            <svg class="h-5 w-5 mr-2 flex-shrink-0" style="color: #1055C9;" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <p class="text-sm high-contrast">
+              <strong>หมายเหตุ:</strong> สามารถสมัครสมาชิกได้เฉพาะอีเมลที่ลงท้ายด้วย @ubu.ac.th เท่านั้น
+            </p>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <button type="submit" 
+                  class="btn-primary focus-visible w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="ส่งข้อมูลสมัครสมาชิก">
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            สมัครสมาชิก
+          </button>
+        </div>
+
+        <!-- Login Link -->
+        <div class="text-center pt-4 border-t border-gray-200">
+          <p class="text-sm text-gray-600">
+            มีบัญชีอยู่แล้ว? 
+            <a href="#" 
+               class="font-semibold focus-visible rounded transition-colors duration-200"
+               style="color: #1055C9;"
+               onmouseover="this.style.color='#0d47a1'"
+               onmouseout="this.style.color='#1055C9'"
+               aria-label="ไปหน้าเข้าสู่ระบบ">
+              เข้าสู่ระบบ
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Enhanced client-side email domain enforcement with better UX
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector("form");
+    const emailField = document.querySelector("input[name=email]");
+    const submitButton = document.querySelector('button[type="submit"]');
+    
+    // Email domain validation function (preserving your original logic)
+    function validateEmailDomain(email) {
+      const re = /^[A-Za-z0-9._%+-]+@ubu\.ac\.th$/;
+      return re.test(email);
+    }
+    
+    // Real-time email validation with visual feedback
+    if (emailField) {
+      emailField.addEventListener('input', function() {
+        const email = this.value.trim();
+        const isValid = email === '' || validateEmailDomain(email);
+        
+        // Remove existing validation messages
+        const existingError = this.parentNode.parentNode.querySelector('.domain-error');
+        if (existingError) {
+          existingError.remove();
+        }
+        
+        if (email && !isValid) {
+          // Add error styling
+          this.style.borderColor = '#dc2626';
+          this.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.1)';
+          
+          // Add error message
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'domain-error mt-2 error-message';
+          errorDiv.setAttribute('role', 'alert');
+          errorDiv.setAttribute('aria-live', 'polite');
+          errorDiv.innerHTML = `
+            <div class="text-sm error-text flex items-center">
+              <svg class="h-4 w-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              กรุณาใช้อีเมลที่ลงท้ายด้วย @ubu.ac.th เท่านั้น
+            </div>
+          `;
+          this.parentNode.parentNode.appendChild(errorDiv);
+        } else {
+          // Reset to normal styling
+          this.style.borderColor = '#e5e7eb';
+          this.style.boxShadow = '';
+        }
+      });
+    }
+    
+    // Enhanced form submission (preserving your original validation logic)
+    form.addEventListener("submit", function(e) {
+      if (emailField) {
+        const email = emailField.value;
+        const re = /^[A-Za-z0-9._%+-]+@ubu\.ac\.th$/;
+        if (!re.test(email)) {
+          e.preventDefault();
+          
+          // Focus on email field for accessibility
+          emailField.focus();
+          
+          // Show inline error instead of alert
+          const existingError = emailField.parentNode.parentNode.querySelector('.domain-error');
+          if (!existingError) {
+            emailField.dispatchEvent(new Event('input'));
+          }
+          
+          // Add shake animation to submit button
+          submitButton.style.animation = 'shake 0.5s ease-in-out';
+          setTimeout(() => {
+            submitButton.style.animation = '';
+          }, 500);
+          
+          // Show accessible notification instead of alert
+          const notification = document.createElement('div');
+          notification.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50';
+          notification.setAttribute('role', 'alert');
+          notification.setAttribute('aria-live', 'assertive');
+          notification.innerHTML = `
+            <div class="flex items-center">
+              <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <span>ต้องใช้อีเมลของมหาวิทยาลัยเท่านั้น (ลงท้ายด้วย @ubu.ac.th)</span>
+            </div>
+          `;
+          document.body.appendChild(notification);
+          
+          // Auto-remove notification after 5 seconds
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+            }
+          }, 5000);
+          
+          return false;
+        }
+      }
+    });
+    
+    // Enhanced keyboard navigation
+    const focusableElements = form.querySelectorAll('input, button, a');
+    focusableElements.forEach((element, index) => {
+      element.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && this.tagName !== 'BUTTON') {
+          e.preventDefault();
+          const nextElement = focusableElements[index + 1];
+          if (nextElement) {
+            nextElement.focus();
+          } else {
+            submitButton.focus();
+          }
+        }
+      });
+    });
+  });
+  
+  // Add shake animation keyframes
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="min-h-full py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">เสนอแนวคิดกิจกรรมใหม่</h1>
+      <p class="text-gray-600">แบ่งปันไอเดียสร้างสรรค์ของคุณเพื่อสร้างกิจกรรมที่น่าสนใจ</p>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <div class="px-6 py-8 sm:px-8 sm:py-10">
+        <form method="post" class="space-y-6">
+          {% csrf_token %}
+          
+          {% for field in form %}
+            <div class="space-y-2">
+              <!-- Label -->
+              <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                {{ field.label }}
+                {% if field.field.required %}
+                  <span class="text-red-500 ml-1" aria-label="จำเป็น">*</span>
+                {% endif %}
+              </label>
+              
+              <!-- Input Field -->
+              <div class="relative">
+                {% if field.field.widget.input_type == 'textarea' %}
+                  {% render_field field class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none min-h-[120px] text-gray-900 placeholder-gray-400" placeholder="กรุณาระบุรายละเอียด..." %}
+                {% else %}
+                  {% render_field field class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-gray-900 placeholder-gray-400" %}
+                {% endif %}
+              </div>
+              
+              <!-- Error Messages -->
+              {% if field.errors %}
+                <div class="mt-2" role="alert" aria-live="polite">
+                  {% for error in field.errors %}
+                    <p class="text-sm text-red-600 flex items-center">
+                      <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                      </svg>
+                      {{ error }}
+                    </p>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <!-- Submit Button -->
+          <div class="pt-6">
+            <button 
+              type="submit" 
+              class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all duration-200 flex items-center justify-center space-x-2"
+              style="background: linear-gradient(135deg, #41A67E 0%, #05339C 100%)"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+              </svg>
+              <span>ส่งข้อเสนอ</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-500">
+        ข้อเสนอของคุณจะได้รับการพิจารณาและติดต่อกลับภายใน 3-5 วันทำการ
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+body {
+  box-sizing: border-box;
+}
+
+/* Custom focus styles using theme colors */
+.form-input:focus {
+  border-color: #1055C9;
+  box-shadow: 0 0 0 3px rgba(16, 85, 201, 0.1);
+}
+
+/* Custom button hover effect */
+.submit-btn:hover {
+  background: linear-gradient(135deg, #05339C 0%, #E5C95F 100%);
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .form-container {
+    margin: 1rem;
+    border-radius: 1rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .border-gray-200 {
+    border-color: #000;
+  }
+  
+  .text-gray-600 {
+    color: #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+</style>
+{% endblock %}

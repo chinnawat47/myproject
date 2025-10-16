@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-full bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-6 py-8 sm:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2" style="color: #05339C;">
+              กลุ่ม
+            </h1>
+            <p class="text-gray-600 text-sm sm:text-base">จัดการและดูรายการกลุ่มทั้งหมด</p>
+          </div>
+          <div class="flex-shrink-0">
+            <a 
+              href="{% url 'volunteer_app:create_group' %}" 
+              class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95"
+              style="background-color: #41A67E; focus:ring-color: #41A67E;"
+              onmouseover="this.style.backgroundColor='#369268'"
+              onmouseout="this.style.backgroundColor='#41A67E'"
+              role="button"
+              aria-label="สร้างกลุ่มใหม่"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              สร้างกลุ่ม
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Groups List Section -->
+    <div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      {% for g in groups %}
+        {% if forloop.first %}
+        <div class="px-6 py-4 border-b border-gray-100" style="background-color: #f8fafc;">
+          <h2 class="text-lg font-semibold text-gray-900">รายการกลุ่ม</h2>
+        </div>
+        <ul class="divide-y divide-gray-100" role="list">
+        {% endif %}
+        
+        <li class="group hover:bg-gray-50 transition-colors duration-150">
+          <div class="px-6 py-5 sm:px-8">
+            <div class="flex items-start justify-between">
+              <div class="flex-1 min-w-0">
+                <a 
+                  href="{% url 'volunteer_app:group_detail' g.pk %}" 
+                  class="block focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-md"
+                  style="focus:ring-color: #1055C9;"
+                  aria-describedby="group-{{ g.pk }}-description"
+                >
+                  <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-150 mb-2" 
+                      style="group-hover:color: #1055C9;">
+                    {{ g.name }}
+                  </h3>
+                  <p 
+                    id="group-{{ g.pk }}-description"
+                    class="text-sm text-gray-600 leading-relaxed line-clamp-3"
+                  >
+                    {{ g.description|truncatechars:120 }}
+                  </p>
+                </a>
+              </div>
+              <div class="ml-4 flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-150" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </li>
+        
+        {% if forloop.last %}
+        </ul>
+        {% endif %}
+      {% empty %}
+        <!-- Empty State -->
+        <div class="px-6 py-12 sm:px-8 text-center">
+          <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" 
+               style="background-color: #f0f9f5;">
+            <svg class="w-8 h-8" style="color: #41A67E;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">ยังไม่มีกลุ่ม</h3>
+          <p class="text-gray-600 mb-6 max-w-sm mx-auto">
+            เริ่มต้นสร้างกลุ่มแรกของคุณเพื่อจัดระเบียบกิจกรรมอาสาสมัคร
+          </p>
+          <a 
+            href="{% url 'volunteer_app:create_group' %}" 
+            class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-95"
+            style="background-color: #41A67E; focus:ring-color: #41A67E;"
+            onmouseover="this.style.backgroundColor='#369268'"
+            onmouseout="this.style.backgroundColor='#41A67E'"
+            role="button"
+            aria-label="สร้างกลุ่มแรก"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            สร้างกลุ่มแรก
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+body {
+  box-sizing: border-box;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Custom focus styles for better accessibility */
+a:focus {
+  outline: 2px solid #1055C9;
+  outline-offset: 2px;
+}
+
+/* Smooth hover transitions */
+.group:hover h3 {
+  color: #1055C9 !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .line-clamp-3 {
+    -webkit-line-clamp: 2;
+  }
+}
+</style>
+{% endblock %}

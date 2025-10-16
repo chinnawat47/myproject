@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  body {
+    box-sizing: border-box;
+  }
+  
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #41A67E 0%, #369968 100%);
+    transition: all 0.2s ease;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #369968 0%, #2d7d56 100%);
+    transform: translateY(-1px);
+  }
+  
+  .btn-secondary {
+    background: linear-gradient(135deg, #1055C9 0%, #0d47a1 100%);
+    transition: all 0.2s ease;
+  }
+  
+  .btn-secondary:hover {
+    background: linear-gradient(135deg, #0d47a1 0%, #0a3d91 100%);
+    transform: translateY(-1px);
+  }
+  
+  .form-input {
+    transition: all 0.2s ease;
+  }
+  
+  .form-input:focus {
+    border-color: #41A67E;
+    box-shadow: 0 0 0 3px rgba(65, 166, 126, 0.1);
+  }
+  
+  .badge-full {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+  
+  .badge-available {
+    background: linear-gradient(135deg, #41A67E 0%, #369968 100%);
+  }
+  
+  .text-primary { color: #41A67E; }
+  .text-dark-blue { color: #05339C; }
+  .text-blue { color: #1055C9; }
+  .text-gold { color: #E5C95F; }
+</style>
+
+<!-- Header Section -->
+<header class="bg-white shadow-sm border-b border-gray-200 -mx-4 -mt-4 mb-6">
+  <div class="px-4 sm:px-6 lg:px-8 py-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-dark-blue" role="banner">
+          กิจกรรมทั้งหมด
+        </h1>
+        <p class="mt-2 text-gray-600">ค้นหาและเข้าร่วมกิจกรรมที่น่าสนใจ</p>
+      </div>
+      <a 
+        href="{% url 'volunteer_app:create_activity' %}"
+        class="btn-primary text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 inline-flex items-center gap-2"
+        style="focus:ring-color: #41A67E;"
+        aria-label="สร้างกิจกรรมใหม่"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        สร้างกิจกรรม
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Search and Filter Section -->
+<section class="bg-white shadow-sm rounded-xl border border-gray-200 p-6 mb-8" aria-label="ค้นหาและกรองกิจกรรม">
+  <form method="get" class="space-y-6" role="search">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- ชื่อกิจกรรม -->
+      <div class="space-y-2">
+        <label for="search-name" class="block text-sm font-medium text-gray-700">
+          ชื่อกิจกรรม
+        </label>
+        <input 
+          type="text" 
+          id="search-name"
+          name="q" 
+          value="{{ request.GET.q }}"
+          placeholder="ค้นหาชื่อหรือรายละเอียด..."
+          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+          aria-describedby="search-name-help"
+        >
+        <p id="search-name-help" class="sr-only">กรอกชื่อกิจกรรมหรือรายละเอียดที่ต้องการค้นหา</p>
+      </div>
+
+      <!-- หมวดหมู่ -->
+      <div class="space-y-2">
+        <label for="search-category" class="block text-sm font-medium text-gray-700">
+          หมวดหมู่
+        </label>
+        <select 
+          id="search-category"
+          name="category" 
+          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+          aria-describedby="search-category-help"
+        >
+          <option value="">ทุกหมวดหมู่</option>
+          <option value="environment" {% if request.GET.category == "environment" %}selected{% endif %}>Environment</option>
+          <option value="community" {% if request.GET.category == "community" %}selected{% endif %}>Community</option>
+          <option value="education" {% if request.GET.category == "education" %}selected{% endif %}>Education</option>
+          <option value="health" {% if request.GET.category == "health" %}selected{% endif %}>Health</option>
+          <option value="other" {% if request.GET.category == "other" %}selected{% endif %}>Other</option>
+        </select>
+        <p id="search-category-help" class="sr-only">เลือกหมวดหมู่กิจกรรม</p>
+      </div>
+
+      <!-- สถานที่ -->
+      <div class="space-y-2">
+        <label for="search-location" class="block text-sm font-medium text-gray-700">
+          สถานที่
+        </label>
+        <input 
+          type="text" 
+          id="search-location"
+          name="location" 
+          value="{{ request.GET.location }}"
+          placeholder="ค้นหาสถานที่..."
+          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+          aria-describedby="search-location-help"
+        >
+        <p id="search-location-help" class="sr-only">กรอกสถานที่จัดกิจกรรม</p>
+      </div>
+
+      <!-- วันที่เริ่ม -->
+      <div class="space-y-2">
+        <label for="search-start-date" class="block text-sm font-medium text-gray-700">
+          วันที่เริ่ม
+        </label>
+        <input 
+          type="date" 
+          id="search-start-date"
+          name="date_from" 
+          value="{{ request.GET.date_from }}"
+          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+          aria-describedby="search-start-date-help"
+        >
+        <p id="search-start-date-help" class="sr-only">เลือกวันที่เริ่มต้นกิจกรรม</p>
+      </div>
+
+      <!-- วันที่สิ้นสุด -->
+      <div class="space-y-2">
+        <label for="search-end-date" class="block text-sm font-medium text-gray-700">
+          วันที่สิ้นสุด
+        </label>
+        <input 
+          type="date" 
+          id="search-end-date"
+          name="date_to" 
+          value="{{ request.GET.date_to }}"
+          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+          aria-describedby="search-end-date-help"
+        >
+        <p id="search-end-date-help" class="sr-only">เลือกวันที่สิ้นสุดกิจกรรม</p>
+      </div>
+
+      <!-- ชั่วโมงขั้นต่ำ -->
+      <div class="space-y-2">
+        <label for="search-min-hours" class="block text-sm font-medium text-gray-700">
+          ชั่วโมงขั้นต่ำ
+        </label>
+        <input 
+          type="number" 
+          id="search-min-hours"
+          name="hours" 
+          value="{{ request.GET.hours }}"
+          min="0"
+          placeholder="0"
+          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+          aria-describedby="search-min-hours-help"
+        >
+        <p id="search-min-hours-help" class="sr-only">กรอกจำนวนชั่วโมงขั้นต่ำที่ต้องการ</p>
+      </div>
+    </div>
+
+    <!-- Search Buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+      <button 
+        type="submit" 
+        class="btn-primary text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 inline-flex items-center justify-center gap-2"
+        style="focus:ring-color: #41A67E;"
+        aria-label="ค้นหากิจกรรม"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        ค้นหา / กรอง
+      </button>
+      <a 
+        href="{% url 'volunteer_app:activities' %}" 
+        class="btn-secondary text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 text-center inline-flex items-center justify-center gap-2"
+        style="focus:ring-color: #1055C9;"
+        aria-label="ล้างตัวกรอง"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        ล้างตัวกรอง
+      </a>
+    </div>
+  </form>
+</section>
+
+<!-- Activities Grid Section -->
+<main role="main">
+  {% if activities %}
+    <div class="mb-6">
+      <p class="text-gray-600" role="status" aria-live="polite">
+        พบกิจกรรม {{ activities|length }} รายการ
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list">
+      {% for a in activities %}
+        <article 
+          class="card-hover bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden"
+          role="listitem"
+          aria-labelledby="activity-title-{{ a.id }}"
+        >
+          <!-- Card Header -->
+          <div class="p-6 pb-4">
+            <div class="flex items-start justify-between mb-3">
+              <h3 
+                id="activity-title-{{ a.id }}"
+                class="text-xl font-bold text-dark-blue line-clamp-2 flex-1 mr-3"
+              >
+                {{ a.title }}
+              </h3>
+              {% if a.is_full %}
+                <span 
+                  class="badge-full text-white text-xs font-medium px-3 py-1 rounded-full flex-shrink-0"
+                  aria-label="กิจกรรมเต็มแล้ว"
+                >
+                  เต็มแล้ว
+                </span>
+              {% else %}
+                <span 
+                  class="badge-available text-white text-xs font-medium px-3 py-1 rounded-full flex-shrink-0"
+                  aria-label="ยังมีที่ว่าง"
+                >
+                  ว่าง
+                </span>
+              {% endif %}
+            </div>
+
+            <!-- Activity Info -->
+            <div class="space-y-2 text-sm text-gray-600">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span>{{ a.datetime|date:"d M Y H:i" }} น.</span>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="truncate">{{ a.location }}</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-gold flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>{{ a.hours_reward }} ชั่วโมง</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span>{{ a.capacity }} คน</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="px-6 pb-4">
+            <p class="text-gray-700 text-sm leading-relaxed">
+              {{ a.description|truncatechars:150 }}
+            </p>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="px-6 pb-6">
+            {% if a.is_full %}
+              <button 
+                disabled
+                class="w-full bg-gray-300 text-gray-500 py-3 px-4 rounded-lg font-medium cursor-not-allowed"
+                aria-label="กิจกรรมเต็มแล้ว ไม่สามารถสมัครได้"
+              >
+                กิจกรรมเต็มแล้ว
+              </button>
+            {% else %}
+              <a 
+                href="{% url 'volunteer_app:activity_detail' a.pk %}" 
+                class="btn-primary block w-full text-white py-3 px-4 rounded-lg font-medium text-center shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
+                style="focus:ring-color: #41A67E;"
+                aria-label="ดูรายละเอียดและสมัครกิจกรรม {{ a.title }}"
+              >
+                รายละเอียด / สมัคร
+              </a>
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12" role="status" aria-live="polite">
+      <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">ไม่พบกิจกรรม</h3>
+      <p class="text-gray-600 mb-6">ลองปรับเปลี่ยนเงื่อนไขการค้นหาหรือสร้างกิจกรรมใหม่</p>
+      <a 
+        href="{% url 'volunteer_app:create_activity' %}"
+        class="btn-primary text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 inline-flex items-center gap-2"
+        style="focus:ring-color: #41A67E;"
+        aria-label="สร้างกิจกรรมใหม่"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        สร้างกิจกรรมแรก
+      </a>
+    </div>
+  {% endif %}
+</main>
+
+{% endblock %}

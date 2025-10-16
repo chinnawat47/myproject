@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-full bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto space-y-6">
+    
+    <!-- Profile Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2" style="color: #05339C;">โปรไฟล์ผู้ใช้</h1>
+      <div class="w-24 h-1 mx-auto rounded-full" style="background-color: #41A67E;"></div>
+    </div>
+
+    <!-- Profile Information Card -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200" style="background: linear-gradient(135deg, #41A67E 0%, #1055C9 100%);">
+        <h2 class="text-xl font-semibold text-white flex items-center" role="heading" aria-level="2">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          ข้อมูลส่วนตัว
+        </h2>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-32 flex-shrink-0">คำนำหน้า:</label>
+              <span class="text-gray-900 font-medium">{{ user.title }}</span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-32 flex-shrink-0">ชื่อ-สกุล:</label>
+              <span class="text-gray-900 font-medium">{{ user.first_name }} {{ user.last_name }}</span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-32 flex-shrink-0">รหัสนักศึกษา:</label>
+              <span class="text-gray-900 font-medium">{{ user.student_id }}</span>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-24 flex-shrink-0">คณะ:</label>
+              <span class="text-gray-900 font-medium">{{ user.faculty }}</span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-24 flex-shrink-0">สาขา:</label>
+              <span class="text-gray-900 font-medium">{{ user.department }}</span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-24 flex-shrink-0">ชั้นปี:</label>
+              <span class="text-gray-900 font-medium">{{ user.year }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Hours Card -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div class="p-6 text-center" style="background: linear-gradient(135deg, #E5C95F 0%, #41A67E 100%);">
+        <div class="flex items-center justify-center mb-2">
+          <svg class="w-8 h-8 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-2xl font-bold text-white" role="heading" aria-level="3">รวมชั่วโมงทั้งหมด</h3>
+        </div>
+        <div class="text-4xl font-bold text-white" aria-label="จำนวนชั่วโมงทั้งหมด {{ total_hours }} ชั่วโมง">
+          {{ total_hours }} <span class="text-xl">ชั่วโมง</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity History Card -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200" style="background-color: #05339C;">
+        <h3 class="text-xl font-semibold text-white flex items-center" role="heading" aria-level="3">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          ประวัติการเข้าร่วมกิจกรรม
+        </h3>
+      </div>
+      
+      <div class="p-6">
+        {% if signups %}
+          <ul class="space-y-3" role="list" aria-label="รายการประวัติการเข้าร่วมกิจกรรม">
+            {% for s in signups %}
+              <li class="group p-4 rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500" 
+                  role="listitem" 
+                  tabindex="0"
+                  aria-label="กิจกรรม {{ s.activity.title }} วันที่ {{ s.activity.datetime|date:'Y-m-d H:i' }} ได้รับ {{ s.activity.hours_reward }} ชั่วโมง">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <div class="flex-1 min-w-0">
+                    <h4 class="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200 truncate">
+                      {{ s.activity.title }}
+                    </h4>
+                    <div class="mt-1 flex items-center text-sm text-gray-500">
+                      <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      <time datetime="{{ s.activity.datetime|date:'Y-m-d H:i' }}">
+                        {{ s.activity.datetime|date:"d/m/Y H:i" }}
+                      </time>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3 sm:mt-0 sm:ml-4 flex-shrink-0">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white" 
+                         style="background-color: #41A67E;"
+                         aria-label="{{ s.activity.hours_reward }} ชั่วโมง">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      {{ s.activity.hours_reward }} ชั่วโมง
+                    </div>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p class="text-gray-500 text-lg" role="status" aria-live="polite">ยังไม่มีการสมัครกิจกรรม</p>
+            <p class="text-gray-400 text-sm mt-2">เมื่อคุณสมัครเข้าร่วมกิจกรรม ประวัติจะแสดงที่นี่</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+body {
+  box-sizing: border-box;
+}
+
+/* Custom focus styles for better accessibility */
+.focus-visible:focus {
+  outline: 2px solid #1055C9;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for interactive elements */
+.group:hover .group-hover\:text-blue-600 {
+  color: #1055C9;
+}
+
+/* Ensure proper contrast for all text elements */
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-gray-600 {
+  color: #4B5563;
+}
+
+.text-gray-500 {
+  color: #6B7280;
+}
+
+/* Responsive improvements for very small screens */
+@media (max-width: 320px) {
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .text-4xl {
+    font-size: 2.25rem;
+  }
+}
+</style>
+{% endblock %}
