@@ -15,8 +15,8 @@ urlpatterns = [
 
     # QR code
     path("qr/scan/", views.qr_scan_page, name="qr_scan"),
-    path("qr/verify/", views.qr_verify, name="qr_verify"),  # POST for verification
-    path("qr/confirm/<str:token>/", views.qr_confirm, name="qr_confirm"),  # direct QR link
+    path("qr/verify/", views.qr_verify, name="qr_verify"),
+    path("qr/confirm/<str:token>/", views.qr_confirm, name="qr_confirm"),
 
     # โปรไฟล์ผู้ใช้
     path("profile/", views.profile, name="profile"),
@@ -34,8 +34,17 @@ urlpatterns = [
     path("group/<int:pk>/", views.group_detail, name="group_detail"),
     path("group/<int:pk>/join/", views.join_group, name="join_group"),
 
-    # Authentication
+    # Authentication (ผู้ใช้)
     path("accounts/login/", views.login_view, name="login"),
     path("accounts/logout/", views.logout_view, name="logout"),
     path("accounts/register/", views.register, name="register"),
+
+    # ------------------ Admin (Custom) ------------------
+    path("custom-admin/login/", views.admin_login, name="admin_login"),
+    path("custom-admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
+    path("custom-admin/logout/", views.admin_logout, name="admin_logout"),
 ]
+
+# (Optional)
+handler404 = "volunteer_app.views.error_404"
+handler500 = "volunteer_app.views.error_500"

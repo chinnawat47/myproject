@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Q, Sum
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.views.decorators.http import require_POST
 
-from .forms import RegistrationForm, ActivityForm, SignupForm, IdeaForm, GroupForm
+from .forms import RegistrationForm, ActivityForm, SignupForm, IdeaForm, GroupForm, AdminLoginForm
 from .models import (
     Activity, ActivitySignup, QRScan, Vote, IdeaProposal,
     Group, GroupMembership, GroupPost
@@ -15,10 +15,13 @@ import qrcode
 from io import BytesIO
 import base64
 
-# ใช้ Custom User model
 User = get_user_model()
 
+# ------------------ Helper ------------------
+def is_admin(user):
+    return user.is_staff or user.is_superuser
 
+# ------------------ User Views ------------------
 def index(request):
     return render(request, "index.html")
 
@@ -28,7 +31,7 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.email.split("@")[0]  # ตั้ง username จาก email
+            user.username = user.email.split("@")[0]
             user.save()
             login(request, user)
             return redirect("volunteer_app:profile")
@@ -39,12 +42,13 @@ def register(request):
 
 def login_view(request):
     error = None
+    username_value = ""
     if request.method == "POST":
-        username_or_email = request.POST.get("username")
-        password = request.POST.get("password")
+        username_or_email = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+        remember_me = request.POST.get("remember-me")
 
         username = None
-        # รองรับการ login ด้วย email
         if "@" in username_or_email:
             try:
                 user_obj = User.objects.get(email=username_or_email)
@@ -59,13 +63,21 @@ def login_view(request):
         else:
             user = None
 
-        if user is not None:
+        if user:
             login(request, user)
+            if not remember_me:
+                request.session.set_expiry(0)
+            if user.is_superuser or user.is_staff:
+                return redirect("volunteer_app:admin_dashboard")
             return redirect("volunteer_app:profile")
         else:
-            error = "กรุณาใส่ ชื่อผู้ใช้ หรือรหัสผ่านที่ถูกต้อง"
+            error = "กรุณาใส่ชื่อผู้ใช้หรือรหัสผ่านที่ถูกต้อง"
+            username_value = username_or_email
 
-    return render(request, "registration/login.html", {"error": error})
+    return render(request, "registration/login.html", {
+        "error": error,
+        "username": username_value
+    })
 
 
 def logout_view(request):
@@ -73,9 +85,17 @@ def logout_view(request):
     return redirect("volunteer_app:index")
 
 
+@login_required
+def profile(request):
+    user = request.user
+    signups = user.signups.select_related("activity").all()
+    scans = user.qr_scans.select_related("activity").all()
+    total_hours = user.total_hours()
+    return render(request, "profile.html", {"user": user, "signups": signups, "scans": scans, "total_hours": total_hours})
+
+# ------------------ Activity Views ------------------
 def activities(request):
     qs = Activity.objects.all().order_by("datetime")
-    # Filters
     q = request.GET.get("q")
     category = request.GET.get("category")
     date_from = request.GET.get("date_from")
@@ -108,13 +128,10 @@ def activities(request):
 
 def activity_detail(request, pk):
     activity = get_object_or_404(Activity, pk=pk)
-    user_signed = False
-    if request.user.is_authenticated:
-        user_signed = ActivitySignup.objects.filter(activity=activity, user=request.user).exists()
+    user_signed = request.user.is_authenticated and ActivitySignup.objects.filter(activity=activity, user=request.user).exists()
     can_signup = not activity.is_full()
     qr_token = activity.qr_token()
 
-    # generate QR image
     buffer = BytesIO()
     q = qrcode.make(request.build_absolute_uri(f"/qr/confirm/{qr_token}/"))
     q.save(buffer, format="PNG")
@@ -212,29 +229,7 @@ def qr_confirm(request, token):
     return HttpResponse(f"ยืนยันสำเร็จ: ได้ {activity.hours_reward} ชั่วโมง")
 
 
-@login_required
-def profile(request):
-    user = request.user
-    signups = user.signups.select_related("activity").all()
-    scans = user.qr_scans.select_related("activity").all()
-    total_hours = user.total_hours()
-    return render(request, "profile.html", {"user": user, "signups": signups, "scans": scans, "total_hours": total_hours})
-
-
-@require_POST
-def chatbot_api(request):
-    q = request.POST.get("q", "").strip().lower()
-    if "มีกิจกรรม" in q or "กิจกรรมอะไร" in q:
-        resp = "ตอนนี้มีกิจกรรมที่ลงไว้บนหน้า 'กิจกรรมทั้งหมด' คุณสามารถใช้ตัวกรองหรือค้นหาเพื่อดูรายละเอียดได้"
-    elif "สมัครอย่างไร" in q or "สมัคร" in q:
-        resp = "เข้าสู่หน้ากิจกรรม เลือกกิจกรรมที่ต้องการ แล้วกดปุ่ม 'สมัคร' กรอกข้อมูลเพิ่มเติมแล้วส่งได้เลย"
-    elif "ได้กี่ชั่วโมง" in q or "ชั่วโมง" in q:
-        resp = "ชั่วโมงที่ได้รับจะแสดงในรายละเอียดกิจกรรม (hours_reward) และจะยืนยันเมื่อสแกน QR หน้างานครั้งเดียวต่อผู้ใช้"
-    else:
-        resp = "ขอโทษ ฉันยังไม่เข้าใจคำถามนี้ — ตัวอย่างคำถามที่รองรับ: 'มีกิจกรรมอะไรบ้าง?', 'สมัครอย่างไร?', 'ได้กี่ชั่วโมง?'"
-    return JsonResponse({"reply": resp})
-
-
+# ------------------ Idea & Vote ------------------
 @login_required
 def propose_idea(request):
     if request.method == "POST":
@@ -257,40 +252,154 @@ def vote_activity(request, activity_id):
         return JsonResponse({"ok": False, "message": "คุณโหวตแล้ว"})
     return JsonResponse({"ok": True, "message": "โหวตแล้ว"})
 
-
+# ------------------ Group ------------------
+@login_required
 def groups_list(request):
-    groups = Group.objects.all()
+    """หน้ารายชื่อกลุ่มทั้งหมด"""
+    groups = Group.objects.all().order_by("-created_at")
     return render(request, "groups.html", {"groups": groups})
 
 
 @login_required
 def create_group(request):
+    """สร้างกลุ่มใหม่"""
     if request.method == "POST":
         form = GroupForm(request.POST)
         if form.is_valid():
             g = form.save(commit=False)
             g.created_by = request.user
-            g.generate_invite_code()
             g.save()
+            g.generate_invite_code()
             GroupMembership.objects.create(group=g, user=request.user)
             return redirect("volunteer_app:group_detail", pk=g.pk)
     else:
         form = GroupForm()
-    return render(request, "group_detail.html", {"form": form})
+    return render(request, "create_group.html", {"form": form})
 
 
+@login_required
 def group_detail(request, pk):
+    """ดูรายละเอียดกลุ่ม / เข้าร่วม / โพสต์ / เชิญเพื่อน"""
     g = get_object_or_404(Group, pk=pk)
+    user_in_group = GroupMembership.objects.filter(group=g, user=request.user).exists()
+
+    # ✅ เข้าร่วมกลุ่ม
+    if request.method == "POST" and "join_group" in request.POST:
+        if not user_in_group:
+            GroupMembership.objects.create(group=g, user=request.user)
+            user_in_group = True
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({
+                "ok": True,
+                "message": "เข้าร่วมกลุ่มเรียบร้อย",
+                "username": request.user.username,
+                "full_name": request.user.get_full_name()
+            })
+        return redirect("volunteer_app:group_detail", pk=pk)
+
+    # ✅ โพสต์ข้อความ
+    if request.method == "POST" and "content" in request.POST:
+        content = request.POST.get("content", "").strip()
+        if content:
+            post = GroupPost.objects.create(group=g, author=request.user, content=content)
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({
+                    "ok": True,
+                    "author": request.user.get_full_name() or request.user.username,
+                    "content": post.content,
+                    "created_at": post.created_at.strftime("%d %b %Y, %H:%M")
+                })
+        return redirect("volunteer_app:group_detail", pk=pk)
+
+    # ✅ เชิญเพื่อนเข้ากลุ่ม
+    if request.method == "POST" and "invite_username" in request.POST:
+        invite_username = request.POST.get("invite_username", "").strip()
+        user_to_invite = User.objects.filter(username=invite_username).first()
+        if not user_to_invite:
+            return JsonResponse({"ok": False, "message": "ไม่พบบัญชีผู้ใช้นี้"})
+        membership, created = GroupMembership.objects.get_or_create(group=g, user=user_to_invite)
+        return JsonResponse({
+            "ok": created,
+            "message": "เชิญสำเร็จ" if created else "ผู้ใช้นี้อยู่ในกลุ่มแล้ว",
+            "username": user_to_invite.username
+        })
+
+    # ✅ แสดงโพสต์และสมาชิกในกลุ่ม
     posts = g.posts.order_by("-created_at").all()
     members = g.memberships.select_related("user").all()
-    return render(request, "group_detail.html", {"group": g, "posts": posts, "members": members})
+
+    return render(request, "group_detail.html", {
+        "group": g,
+        "posts": posts,
+        "members": members,
+        "user_in_group": user_in_group,
+    })
 
 
 @login_required
 def join_group(request, pk):
+    """รองรับ AJAX เข้าร่วมกลุ่มโดยตรง"""
     g = get_object_or_404(Group, pk=pk)
-    code = request.GET.get("code")
-    if code and code == g.code:
-        GroupMembership.objects.get_or_create(group=g, user=request.user)
-        return redirect("volunteer_app:group_detail", pk=g.pk)
-    return HttpResponseBadRequest("รหัสเชิญไม่ถูกต้อง")
+    membership, created = GroupMembership.objects.get_or_create(group=g, user=request.user)
+    return JsonResponse({
+        "ok": created,
+        "message": "เข้าร่วมกลุ่มแล้ว" if created else "คุณเป็นสมาชิกอยู่แล้ว"
+    })
+
+
+
+# ------------------ Chatbot ------------------
+@require_POST
+def chatbot_api(request):
+    q = request.POST.get("q", "").strip().lower()
+    if "มีกิจกรรม" in q or "กิจกรรมอะไร" in q:
+        resp = "ตอนนี้มีกิจกรรมที่ลงไว้บนหน้า 'กิจกรรมทั้งหมด' คุณสามารถใช้ตัวกรองหรือค้นหาเพื่อดูรายละเอียดได้"
+    elif "สมัครอย่างไร" in q or "สมัคร" in q:
+        resp = "เข้าสู่หน้ากิจกรรม เลือกกิจกรรมที่ต้องการ แล้วกดปุ่ม 'สมัคร' กรอกข้อมูลเพิ่มเติมแล้วส่งได้เลย"
+    elif "ได้กี่ชั่วโมง" in q or "ชั่วโมง" in q:
+        resp = "ชั่วโมงที่ได้รับจะแสดงในรายละเอียดกิจกรรม (hours_reward) และจะยืนยันเมื่อสแกน QR หน้างานครั้งเดียวต่อผู้ใช้"
+    else:
+        resp = "ขอโทษ ฉันยังไม่เข้าใจคำถามนี้ — ตัวอย่างคำถามที่รองรับ: 'มีกิจกรรมอะไรบ้าง?', 'สมัครอย่างไร?', 'ได้กี่ชั่วโมง?'"
+    return JsonResponse({"reply": resp})
+
+
+# ------------------ Admin Views ------------------
+def admin_login(request):
+    error = None
+    next_url = request.GET.get("next", "volunteer_app:admin_dashboard")
+    if request.method == "POST":
+        form = AdminLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            user = authenticate(request, username=username, password=password)
+            if user and (user.is_staff or user.is_superuser):
+                login(request, user)
+                return redirect(next_url)
+            else:
+                error = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือไม่ใช่ Admin"
+    else:
+        form = AdminLoginForm()
+    return render(request, "admin_login.html", {"form": form, "error": error})
+
+
+@login_required(login_url="/admin/login/")
+@user_passes_test(is_admin, login_url="/admin/login/")
+def admin_dashboard(request):
+    total_users = User.objects.count()
+    total_hours = ActivitySignup.objects.aggregate(total=Sum("activity__hours_reward"))["total"] or 0
+    total_signups = ActivitySignup.objects.count()
+    total_qr_scans = QRScan.objects.count()
+    return render(request, "admin_dashboard.html", {
+        "total_users": total_users,
+        "total_hours": total_hours,
+        "total_signups": total_signups,
+        "total_qr_scans": total_qr_scans,
+    })
+
+
+@login_required(login_url="/admin/login/")
+@user_passes_test(is_admin, login_url="/admin/login/")
+def admin_logout(request):
+    logout(request)
+    return redirect("volunteer_app:admin_login")

@@ -1,23 +1,26 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-import uuid
+import uuid, secrets
 
 def activity_image_path(instance, filename):
     return f"activities/{instance.id}/{filename}"
 
 class User(AbstractUser):
-    # additional profile fields
-    title = models.CharField(max_length=20, blank=True)  # คำนำหน้า
+    title = models.CharField(max_length=20, blank=True)
     student_id = models.CharField(max_length=20, blank=True)
     faculty = models.CharField(max_length=120, blank=True)
     department = models.CharField(max_length=120, blank=True)
     year = models.PositiveSmallIntegerField(null=True, blank=True)
+    is_admin = models.BooleanField(default=False)
 
     def total_hours(self):
-        # sum hours from confirmed scans
         return sum(scan.activity.hours_reward for scan in self.qr_scans.all())
 
+    def __str__(self):
+        return f"{self.get_full_name()} ({self.username})"
+
+# -------------------- ACTIVITY --------------------
 class Activity(models.Model):
     TYPE_CHOICES = [
         ("environment", "Environment"),
@@ -44,13 +47,12 @@ class Activity(models.Model):
         return self.spots_taken() >= self.capacity
 
     def qr_token(self):
-        # deterministic token for QR (could be more secure)
-        # Use UUID namespace + id to allow offline QR generation
         return str(uuid.uuid5(uuid.NAMESPACE_URL, f"activity-{self.id}"))
 
     def __str__(self):
         return self.title
 
+# -------------------- SIGNUP & QR --------------------
 class ActivitySignup(models.Model):
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="signups")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="signups")
@@ -77,6 +79,7 @@ class Vote(models.Model):
     class Meta:
         unique_together = ("activity", "user")
 
+# -------------------- IDEA --------------------
 class IdeaProposal(models.Model):
     proposer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="ideas")
     title = models.CharField(max_length=200)
@@ -85,6 +88,7 @@ class IdeaProposal(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     reviewed = models.BooleanField(default=False)
 
+# -------------------- GROUP --------------------
 class Group(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -93,10 +97,17 @@ class Group(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def generate_invite_code(self):
-        # simple random code
-        import secrets
         self.code = secrets.token_urlsafe(8)
         self.save()
+
+    def member_count(self):
+        return self.memberships.count()
+
+    def is_member(self, user):
+        return self.memberships.filter(user=user).exists()
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"
 
 class GroupMembership(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="memberships")
@@ -106,8 +117,14 @@ class GroupMembership(models.Model):
     class Meta:
         unique_together = ("group", "user")
 
+    def __str__(self):
+        return f"{self.user.username} in {self.group.name}"
+
 class GroupPost(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="posts")
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Post by {self.author} in {self.group.name}"

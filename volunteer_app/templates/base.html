@@ -67,6 +67,7 @@
         {% else %}
           <a href="{% url 'volunteer_app:login' %}" class="text-white hover:text-gold transition-colors">เข้าสู่ระบบ</a>
           <a href="{% url 'volunteer_app:register' %}" class="text-white hover:text-gold transition-colors">สมัครสมาชิก</a>
+          <a href="/admin/login/" class="text-white hover:text-gold transition-colors">Admin Login</a>
         {% endif %}
       </div>
 
@@ -90,6 +91,7 @@
         {% else %}
           <a href="{% url 'volunteer_app:login' %}" class="block text-white/90 hover:text-gold transition-colors">เข้าสู่ระบบ</a>
           <a href="{% url 'volunteer_app:register' %}" class="block text-white/90 hover:text-gold transition-colors">สมัครสมาชิก</a>
+          <a href="/admin/login/" class="block text-white/90 hover:text-gold transition-colors">Admin Login</a>
         {% endif %}
       </div>
     </div>

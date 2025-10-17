@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}แดชบอร์ดผู้ดูแล{% endblock %}
+{% block content %}
+<style>
+body {
+  box-sizing: border-box;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(229, 201, 95, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(229, 201, 95, 0.6); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.gradient-bg {
+  background: linear-gradient(-45deg, #41A67E, #05339C, #1055C9, #E5C95F);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.number-glow {
+  text-shadow: 0 0 20px rgba(16, 85, 201, 0.5);
+}
+
+.icon-bounce:hover {
+  animation: float 1s ease-in-out;
+}
+</style>
+
+<div class="min-h-screen gradient-bg relative overflow-hidden">
+  <!-- Decorative Elements -->
+  <div class="absolute top-10 left-10 w-32 h-32 bg-white opacity-10 rounded-full blur-xl"></div>
+  <div class="absolute top-1/2 right-20 w-24 h-24 bg-yellow-400 opacity-20 rounded-full blur-lg"></div>
+  <div class="absolute bottom-20 left-1/4 w-40 h-40 bg-green-400 opacity-10 rounded-full blur-2xl"></div>
+
+  <div class="relative z-10 p-4 md:p-8 lg:p-12">
+    <div class="max-w-7xl mx-auto">
+      <!-- Enhanced Header -->
+      <div class="text-center mb-12">
+        <div class="inline-block p-4 glass-effect rounded-2xl mb-6 pulse-glow">
+          <svg class="w-16 h-16 text-yellow-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+          </svg>
+          <h1 class="text-4xl md:text-6xl font-bold text-white mb-2 tracking-tight">
+            แดชบอร์ดผู้ดูแล
+          </h1>
+          <p class="text-xl text-white opacity-90">ระบบจัดการอาสาสมัคร</p>
+        </div>
+      </div>
+
+      <!-- Premium Statistics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <!-- Total Users Card -->
+        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 opacity-50 rounded-3xl"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl shadow-lg icon-bounce">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+            </div>
+            <h3 class="font-bold text-xl text-blue-900 mb-3">จำนวนผู้ใช้</h3>
+            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_users }}</p>
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>ผู้ใช้ทั้งหมดในระบบ</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Signups Card -->
+        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden" style="animation-delay: 0.5s;">
+          <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-100 opacity-50 rounded-3xl"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl shadow-lg icon-bounce">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                </svg>
+              </div>
+              <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+            </div>
+            <h3 class="font-bold text-xl text-blue-900 mb-3">กิจกรรมเข้าร่วม</h3>
+            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_signups }}</p>
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>การลงทะเบียนทั้งหมด</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Hours Card -->
+        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden" style="animation-delay: 1s;">
+          <div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-indigo-100 opacity-50 rounded-3xl"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl shadow-lg icon-bounce">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div class="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
+            </div>
+            <h3 class="font-bold text-xl text-blue-900 mb-3">ชั่วโมงรวม</h3>
+            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_hours }}</p>
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>ชั่วโมงอาสาสมัคร</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR Scans Card -->
+        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden" style="animation-delay: 1.5s;">
+          <div class="absolute inset-0 bg-gradient-to-br from-yellow-50 to-orange-100 opacity-50 rounded-3xl"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl shadow-lg icon-bounce">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                </svg>
+              </div>
+              <div class="w-3 h-3 bg-orange-400 rounded-full animate-pulse"></div>
+            </div>
+            <h3 class="font-bold text-xl text-blue-900 mb-3">สแกน QR</h3>
+            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_qr_scans }}</p>
+            <div class="flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>การสแกนทั้งหมด</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Premium Action Section -->
+      <div class="text-center">
+        <div class="inline-block glass-effect rounded-2xl p-8">
+          <a href="{% url 'volunteer_app:admin_logout' %}" 
+             class="group inline-flex items-center px-10 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold text-lg rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105">
+            <svg class="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span class="tracking-wide">ออกจากระบบ</span>
+            <div class="ml-3 w-2 h-2 bg-white rounded-full opacity-75 group-hover:animate-ping"></div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

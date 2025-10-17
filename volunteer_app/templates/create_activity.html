@@ -94,7 +94,7 @@ body {
           <!-- Form Actions -->
           <div class="mt-8 pt-6 border-t border-gray-200">
             <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
-              <!-- Cancel Button (Optional) -->
+              <!-- Cancel Button -->
               <button type="button" 
                       onclick="history.back()" 
                       class="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-20 transition-all duration-200 font-medium text-sm"
@@ -102,7 +102,8 @@ body {
                 ยกเลิก
               </button>
 
-              <!-- Submit Button -->
+              <!-- Submit Button สำหรับ Admin -->
+              {% if request.user.is_superuser %}
               <button type="submit" 
                       class="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all duration-200 font-semibold text-sm shadow-sm"
                       aria-label="บันทึกกิจกรรมใหม่">
@@ -113,6 +114,13 @@ body {
                   บันทึกกิจกรรม
                 </span>
               </button>
+              {% else %}
+              <button type="button" disabled
+                      class="w-full sm:w-auto px-8 py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed"
+                      aria-label="สิทธิ์ไม่เพียงพอ">
+                ไม่สามารถสร้างกิจกรรมได้
+              </button>
+              {% endif %}
             </div>
           </div>
         </form>

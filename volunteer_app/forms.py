@@ -54,3 +54,8 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ["name", "description"]
+
+# ---------------- Admin Login Form ----------------
+class AdminLoginForm(forms.Form):
+    username = forms.CharField(max_length=150, label="ชื่อผู้ใช้")
+    password = forms.CharField(widget=forms.PasswordInput, label="รหัสผ่าน")
