@@ -4,6 +4,16 @@ A demo Django 5+ project implementing a volunteer-hour system with QR confirmati
 
 ---
 
+## Key Features
+
+- Volunteer activity listings with signup, QR confirmation, and pagination
+- Idea proposal center with community voting (`/ideas/`) powered by the new `IdeaVote` model
+- Custom admin dashboard for activities, ideas, and users
+- Floating chatbot widget that answers FAQs and is accessible on every page
+- Group management with invite codes and group posts
+
+---
+
 ## Requirements
 
 - Python 3.10+ recommended

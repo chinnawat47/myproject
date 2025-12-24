@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+  <div class="max-w-md w-full text-center">
+    <!-- Error Icon -->
+    <div class="mx-auto w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6">
+      <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+
+    <!-- Error Code -->
+    <h1 class="text-6xl font-bold text-[#05339C] mb-2">404</h1>
+
+    <!-- Error Title -->
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">ไม่พบหน้านี้</h2>
+
+    <!-- Error Description -->
+    <p class="text-gray-600 mb-8 leading-relaxed">
+      ขออภัย หน้าที่คุณกำลังมองหาอาจถูกลบไปแล้ว หรือ URL ไม่ถูกต้อง
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col gap-3">
+      <a 
+        href="{% url 'volunteer_app:index' %}"
+        class="inline-flex items-center justify-center px-6 py-3 bg-[#41A67E] hover:bg-[#369268] text-white font-semibold rounded-lg transition-all duration-200"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8M3 12a9 9 0 0018 0m0 0a9 9 0 01-18 0"></path>
+        </svg>
+        กลับไปหน้าแรก
+      </a>
+      <a 
+        href="{% url 'volunteer_app:activities' %}"
+        class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all duration-200"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        ดูกิจกรรมทั้งหมด
+      </a>
+    </div>
+
+    <!-- Help Text -->
+    <p class="text-sm text-gray-500 mt-8">
+      หากคุณเชื่อว่านี่เป็นข้อผิดพลาด กรุณาติดต่อผู้ดูแลระบบ
+    </p>
+  </div>
+</div>
+{% endblock %}

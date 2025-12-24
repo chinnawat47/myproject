@@ -1,103 +1,172 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบผู้ดูแล</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#41A67E',
-                        darkBlue: '#05339C',
-                        blue: '#1055C9',
-                        gold: '#E5C95F'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-        <div class="bg-white rounded-lg shadow-lg p-8">
-            <h2 class="text-3xl font-bold text-center text-darkBlue mb-8">
-                เข้าสู่ระบบผู้ดูแลระบบ
-            </h2>
-            
-            <!-- Error Message -->
-            <div class="mb-6 text-center">
-                <p class="text-red-500 font-medium">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>
-            </div>
-            
-            <form class="space-y-6" onsubmit="handleLogin(event)">
-                <!-- Username Field -->
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                        ชื่อผู้ใช้
-                    </label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
-                        placeholder="กรอกชื่อผู้ใช้"
-                    >
-                </div>
-                
-                <!-- Password Field -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                        รหัสผ่าน
-                    </label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password"
-                        required
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
-                        placeholder="กรอกรหัสผ่าน"
-                    >
-                </div>
-                
-                <!-- Submit Button -->
-                <button 
-                    type="submit"
-                    class="w-full bg-primary text-white font-semibold py-3 px-4 rounded-lg hover:bg-green-600 focus:ring-4 focus:ring-green-200 transition-all duration-200 transform hover:scale-[1.02]"
-                >
-                    เข้าสู่ระบบ
-                </button>
-            </form>
-            
-            <!-- Footer -->
-            <div class="mt-8 text-center">
-                <p class="text-sm text-gray-500">
-                    สำหรับผู้ดูแลระบบเท่านั้น
-                </p>
-            </div>
-        </div>
-    </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบผู้ดูแล</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #05339C33, #1055C933, #41A67E33);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
 
-    <script>
-        function handleLogin(event) {
-            event.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // แสดงข้อความสำเร็จ (ในการใช้งานจริงจะส่งข้อมูลไปยัง server)
-            if (username && password) {
-                alert('ในการใช้งานจริง ระบบจะตรวจสอบข้อมูลกับฐานข้อมูล');
-            }
-        }
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98f92841d5aafd7d',t:'MTc2MDYzNDQ5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .glass {
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 2rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .brand-logo {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .brand-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1055C9;
+      margin-bottom: 1.5rem;
+      white-space: nowrap;
+    }
+
+    .input-wrapper {
+      position: relative;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .input-wrapper svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #1055C9;
+    }
+
+    input.input-glass {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border-radius: 0.75rem;
+      border: 1px solid #ccc;
+      background: rgba(255,255,255,0.9);
+      transition: all 0.3s;
+    }
+
+    input.input-glass:focus {
+      outline: none;
+      border-color: #41A67E;
+      box-shadow: 0 0 12px rgba(65,166,126,0.4);
+    }
+
+    button.button-glass {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(to right, #1055C9, #41A67E);
+      color: white;
+      transition: all 0.3s;
+    }
+
+    button.button-glass:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 0 15px rgba(65,166,126,0.5);
+    }
+
+    a.text-link {
+      color: #1055C9;
+      transition: color 0.3s;
+    }
+
+    a.text-link:hover {
+      color: #41A67E;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glass">
+    <!-- Branding -->
+    <img src="https://e7.pngegg.com/pngimages/306/70/png-clipart-computer-icons-management-admin-silhouette-black-and-white-thumbnail.png"
+         alt="Logo" class="brand-logo">
+    <h1 class="brand-title">ระบบจัดการอาสาสมัคร</h1>
+
+    <!-- Login Form -->
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">เข้าสู่ระบบผู้ดูแล</h2>
+
+    {% if error %}
+    <div class="mb-4 p-3 rounded-md bg-red-100 border border-red-400 text-red-700">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'volunteer_app:admin_login' %}" class="w-full">
+      {% csrf_token %}
+
+      <!-- Username -->
+      <div class="input-wrapper">
+        <i data-lucide="user"></i>
+        <input type="text" name="username" required
+               value="{{ request.POST.username|default:'' }}"
+               placeholder="ชื่อผู้ใช้ หรือ อีเมล"
+               class="input-glass">
+      </div>
+
+      <!-- Password -->
+      <div class="input-wrapper">
+        <i data-lucide="lock"></i>
+        <input type="password" name="password" required placeholder="รหัสผ่าน"
+               class="input-glass">
+      </div>
+
+      <div class="flex justify-between text-sm mb-4">
+        <label class="flex items-center gap-2 text-gray-700">
+          <input type="checkbox" class="rounded border-gray-300 focus:ring-2 focus:ring-[#41A67E]"> จำฉันไว้
+        </label>
+        <a href="#" class="text-link">ลืมรหัสผ่าน?</a>
+      </div>
+
+      <button type="submit" class="button-glass">
+        <i data-lucide="log-in"></i> เข้าใช้งาน
+      </button>
+    </form>
+
+    <p class="mt-6 text-xs text-gray-500">
+      <a href="/" class="text-link">กลับสู่หน้าแรก</a>
+    </p>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+
+</body>
 </html>

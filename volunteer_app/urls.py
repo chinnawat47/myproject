@@ -20,13 +20,21 @@ urlpatterns = [
 
     # โปรไฟล์ผู้ใช้
     path("profile/", views.profile, name="profile"),
+    path("profile/edit/", views.edit_profile, name="edit_profile"),
+    path("profile/change-password/", views.change_password, name="change_password"),
+
+    # Notifications
+    path("notifications/", views.notification_list, name="notifications"),
+    path("notifications/read-all/", views.notification_mark_all, name="notification_mark_all"),
+    path("notifications/<int:pk>/read/", views.notification_mark_read, name="notification_mark_read"),
 
     # Chatbot
     path("chatbot/", views.chatbot_api, name="chatbot_api"),
 
-    # เสนอไอเดีย / โหวตกิจกรรม
-    path("propose/", views.propose_idea, name="propose_idea"),
-    path("vote/<int:activity_id>/", views.vote_activity, name="vote_activity"),
+    # ไอเดีย & โหวต
+    path("ideas/", views.idea_list, name="idea_list"),
+    path("ideas/propose/", views.propose_idea, name="propose_idea"),
+    path("ideas/<int:pk>/vote/", views.vote_idea, name="vote_idea"),
 
     # กลุ่ม
     path("groups/", views.groups_list, name="groups"),
@@ -39,12 +47,24 @@ urlpatterns = [
     path("accounts/logout/", views.logout_view, name="logout"),
     path("accounts/register/", views.register, name="register"),
 
-    # ------------------ Admin (Custom) ------------------
+    # Admin Routes
     path("custom-admin/login/", views.admin_login, name="admin_login"),
     path("custom-admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
+    path("custom-admin/activities/", views.admin_manage_activities, name="admin_manage_activities"),
+    path("custom-admin/activity/<int:pk>/edit/", views.admin_edit_activity, name="admin_edit_activity"),
+    path("custom-admin/activity/<int:pk>/delete/", views.admin_delete_activity, name="admin_delete_activity"),
+    path("custom-admin/ideas/", views.admin_manage_ideas, name="admin_manage_ideas"),
+    path("custom-admin/idea/<int:pk>/approve/", views.admin_approve_idea, name="admin_approve_idea"),
+    path("custom-admin/idea/<int:pk>/reject/", views.admin_reject_idea, name="admin_reject_idea"),
+    path("custom-admin/users/", views.admin_manage_users, name="admin_manage_users"),
+    path("custom-admin/user/<int:pk>/edit/", views.admin_edit_user, name="admin_edit_user"),
+    path("custom-admin/user/<int:pk>/delete/", views.admin_delete_user, name="admin_delete_user"),
+    path("custom-admin/user/<int:user_id>/hours/", views.admin_view_user_hours, name="admin_view_user_hours"),
+    path("custom-admin/hours/add/", views.admin_add_volunteer_hours, name="admin_add_volunteer_hours"),
+    path("custom-admin/qr-scan/<int:pk>/delete/", views.admin_delete_qr_scan, name="admin_delete_qr_scan"),
     path("custom-admin/logout/", views.admin_logout, name="admin_logout"),
 ]
 
-# (Optional)
+# Error Handlers
 handler404 = "volunteer_app.views.error_404"
 handler500 = "volunteer_app.views.error_500"

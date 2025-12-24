@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-full bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-[#05339C] mb-2">แก้ไขผู้ใช้</h1>
+      <p class="text-gray-600">อัพเดตข้อมูลและบทบาทของผู้ใช้</p>
+    </div>
+
+    <!-- Form Container -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+      <div class="px-6 py-8 sm:px-8">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          
+          <div class="space-y-6">
+            <!-- ชื่อจริง -->
+            <div class="form-group">
+              <label for="first_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                ชื่อจริง
+              </label>
+              <input 
+                type="text" 
+                id="first_name"
+                name="first_name" 
+                value="{{ user.first_name }}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#41A67E] focus:ring-opacity-20 transition-all duration-200"
+              />
+            </div>
+
+            <!-- นามสกุล -->
+            <div class="form-group">
+              <label for="last_name" class="block text-sm font-semibold text-gray-700 mb-2">
+                นามสกุล
+              </label>
+              <input 
+                type="text" 
+                id="last_name"
+                name="last_name" 
+                value="{{ user.last_name }}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#41A67E] focus:ring-opacity-20 transition-all duration-200"
+              />
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                อีเมล (อ่านอย่างเดียว)
+              </label>
+              <input 
+                type="email" 
+                id="email"
+                name="email" 
+                value="{{ user.email }}"
+                readonly
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
+              />
+            </div>
+
+            <!-- Username -->
+            <div class="form-group">
+              <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">
+                ชื่อผู้ใช้ (อ่านอย่างเดียว)
+              </label>
+              <input 
+                type="text" 
+                id="username"
+                name="username" 
+                value="{{ user.username }}"
+                readonly
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-600"
+              />
+            </div>
+
+            <!-- Permissions Section -->
+            <div class="border-t pt-6 space-y-6">
+              <h3 class="text-lg font-semibold text-gray-900">บทบาท & สิทธิ์</h3>
+              
+              <div class="space-y-4">
+                <!-- Staff Permission -->
+                <div class="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    id="is_staff"
+                    name="is_staff"
+                    {% if user.is_staff %}checked{% endif %}
+                    class="h-5 w-5 text-[#41A67E] border-gray-300 rounded focus:ring-[#41A67E]"
+                  />
+                  <label for="is_staff" class="ml-3 block text-sm font-medium text-gray-700">
+                    <span class="font-semibold">Staff / Admin</span>
+                    <p class="text-gray-600 text-xs">สามารถเข้าถึง dashboard และจัดการระบบ</p>
+                  </label>
+                </div>
+
+                <!-- Superuser Permission -->
+                <div class="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    id="is_superuser"
+                    name="is_superuser"
+                    {% if user.is_superuser %}checked{% endif %}
+                    class="h-5 w-5 text-[#05339C] border-gray-300 rounded focus:ring-[#05339C]"
+                  />
+                  <label for="is_superuser" class="ml-3 block text-sm font-medium text-gray-700">
+                    <span class="font-semibold">Superuser</span>
+                    <p class="text-gray-600 text-xs">สิทธิ์สูงสุด สามารถเข้าถึง Django Admin ทั้งหมด</p>
+                  </label>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <p class="text-sm text-gray-600">เลือกบทบาทของผู้ใช้ (สามารถเลือกได้หลายบทบาท)</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {% for role in roles %}
+                  <label class="flex items-start gap-3 border border-gray-200 rounded-lg p-4 hover:border-primary transition">
+                    <input 
+                      type="checkbox" 
+                      name="roles" 
+                      value="{{ role.id }}" 
+                      class="mt-1 h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                      {% if role.id in user_role_ids %}checked{% endif %}
+                    >
+                    <span>
+                      <span class="block font-semibold text-gray-800">{{ role.name }}</span>
+                      <span class="block text-sm text-gray-500">{{ role.description }}</span>
+                    </span>
+                  </label>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Status Info -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p class="text-sm text-blue-800">
+                <strong>เข้าร่วมเมื่อ:</strong> {{ user.date_joined|date:"d M Y H:i" }}<br>
+                <strong>ล่าสุดเข้าระบบ:</strong> {{ user.last_login|date:"d M Y H:i"|default:"ยังไม่เข้าระบบ" }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-8 flex gap-4 sm:gap-6">
+            <button type="submit" 
+                    class="flex-1 bg-[#41A67E] hover:bg-[#369268] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200"
+                    aria-label="บันทึก">
+              <span class="flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                บันทึก
+              </span>
+            </button>
+            <a href="{% url 'volunteer_app:admin_manage_users' %}" 
+               class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
+               aria-label="ยกเลิก">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              ยกเลิก
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

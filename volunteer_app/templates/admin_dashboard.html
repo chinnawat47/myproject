@@ -1,186 +1,494 @@
 {% extends "base.html" %}
 {% block title %}แดชบอร์ดผู้ดูแล{% endblock %}
 {% block content %}
+
 <style>
-body {
-  box-sizing: border-box;
+/* ----------------------------------
+   Premium Animation + Effects
+---------------------------------- */
+@keyframes fadeSlide {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+.card-animate {
+  animation: fadeSlide .8s ease forwards;
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(229, 201, 95, 0.3); }
-  50% { box-shadow: 0 0 30px rgba(229, 201, 95, 0.6); }
+.glass {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.75);
 }
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.stat-number {
+  text-shadow: 0px 0px 10px rgba(0, 80, 220, 0.4);
 }
 
-.float-animation {
-  animation: float 6s ease-in-out infinite;
-}
-
-.pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-.gradient-bg {
-  background: linear-gradient(-45deg, #41A67E, #05339C, #1055C9, #E5C95F);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-}
-
-.glass-effect {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.number-glow {
-  text-shadow: 0 0 20px rgba(16, 85, 201, 0.5);
-}
-
-.icon-bounce:hover {
-  animation: float 1s ease-in-out;
-}
 </style>
 
-<div class="min-h-screen gradient-bg relative overflow-hidden">
-  <!-- Decorative Elements -->
-  <div class="absolute top-10 left-10 w-32 h-32 bg-white opacity-10 rounded-full blur-xl"></div>
-  <div class="absolute top-1/2 right-20 w-24 h-24 bg-yellow-400 opacity-20 rounded-full blur-lg"></div>
-  <div class="absolute bottom-20 left-1/4 w-40 h-40 bg-green-400 opacity-10 rounded-full blur-2xl"></div>
+<div class="min-h-screen bg-gradient-to-br from-[#05339C] via-[#1055C9] to-[#41A67E] py-12 px-4 md:px-10 lg:px-20">
 
-  <div class="relative z-10 p-4 md:p-8 lg:p-12">
-    <div class="max-w-7xl mx-auto">
-      <!-- Enhanced Header -->
-      <div class="text-center mb-12">
-        <div class="inline-block p-4 glass-effect rounded-2xl mb-6 pulse-glow">
-          <svg class="w-16 h-16 text-yellow-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
-          </svg>
-          <h1 class="text-4xl md:text-6xl font-bold text-white mb-2 tracking-tight">
-            แดชบอร์ดผู้ดูแล
-          </h1>
-          <p class="text-xl text-white opacity-90">ระบบจัดการอาสาสมัคร</p>
+  <!-- Header -->
+  <div class="text-center text-white mb-14 card-animate">
+    <h1 class="text-5xl font-extrabold tracking-tight drop-shadow-xl">แดชบอร์ดผู้ดูแล</h1>
+    <p class="text-lg opacity-90 mt-3">ระบบจัดการอาสาสมัคร — Volunteer Management System</p>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+    <!-- card -->
+    <div class="glass rounded-3xl p-8 shadow-2xl hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition-all card-animate">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-blue-600 text-white rounded-xl shadow-lg">
+          <i data-lucide="users" class="w-7 h-7"></i>
         </div>
       </div>
+      <p class="text-gray-700 text-xl font-semibold">จำนวนผู้ใช้</p>
+      <p class="text-5xl font-black text-[#05339C] mt-3 stat-number">{{ total_users }}</p>
+    </div>
 
-      <!-- Premium Statistics Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        <!-- Total Users Card -->
-        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden">
-          <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 opacity-50 rounded-3xl"></div>
-          <div class="relative z-10">
-            <div class="flex items-center justify-between mb-6">
-              <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl shadow-lg icon-bounce">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-              </div>
-              <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-            </div>
-            <h3 class="font-bold text-xl text-blue-900 mb-3">จำนวนผู้ใช้</h3>
-            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_users }}</p>
-            <div class="flex items-center text-sm text-gray-600">
-              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>ผู้ใช้ทั้งหมดในระบบ</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total Signups Card -->
-        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden" style="animation-delay: 0.5s;">
-          <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-100 opacity-50 rounded-3xl"></div>
-          <div class="relative z-10">
-            <div class="flex items-center justify-between mb-6">
-              <div class="p-4 bg-gradient-to-br from-green-500 to-green-700 rounded-2xl shadow-lg icon-bounce">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                </svg>
-              </div>
-              <div class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
-            </div>
-            <h3 class="font-bold text-xl text-blue-900 mb-3">กิจกรรมเข้าร่วม</h3>
-            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_signups }}</p>
-            <div class="flex items-center text-sm text-gray-600">
-              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>การลงทะเบียนทั้งหมด</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Total Hours Card -->
-        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden" style="animation-delay: 1s;">
-          <div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-indigo-100 opacity-50 rounded-3xl"></div>
-          <div class="relative z-10">
-            <div class="flex items-center justify-between mb-6">
-              <div class="p-4 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl shadow-lg icon-bounce">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-              <div class="w-3 h-3 bg-purple-400 rounded-full animate-pulse"></div>
-            </div>
-            <h3 class="font-bold text-xl text-blue-900 mb-3">ชั่วโมงรวม</h3>
-            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_hours }}</p>
-            <div class="flex items-center text-sm text-gray-600">
-              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>ชั่วโมงอาสาสมัคร</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- QR Scans Card -->
-        <div class="group float-animation glass-effect rounded-3xl p-8 hover:scale-105 transition-all duration-500 relative overflow-hidden" style="animation-delay: 1.5s;">
-          <div class="absolute inset-0 bg-gradient-to-br from-yellow-50 to-orange-100 opacity-50 rounded-3xl"></div>
-          <div class="relative z-10">
-            <div class="flex items-center justify-between mb-6">
-              <div class="p-4 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl shadow-lg icon-bounce">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                </svg>
-              </div>
-              <div class="w-3 h-3 bg-orange-400 rounded-full animate-pulse"></div>
-            </div>
-            <h3 class="font-bold text-xl text-blue-900 mb-3">สแกน QR</h3>
-            <p class="text-5xl font-black text-blue-700 mb-2 number-glow">{{ total_qr_scans }}</p>
-            <div class="flex items-center text-sm text-gray-600">
-              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>การสแกนทั้งหมด</span>
-            </div>
-          </div>
+    <!-- card -->
+    <div class="glass rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all card-animate">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-green-600 text-white rounded-xl shadow-lg">
+          <i data-lucide="check-circle" class="w-7 h-7"></i>
         </div>
       </div>
+      <p class="text-gray-700 text-xl font-semibold">กิจกรรมเข้าร่วม</p>
+      <p class="text-5xl font-black text-green-700 mt-3 stat-number">{{ total_signups }}</p>
+    </div>
 
-      <!-- Premium Action Section -->
-      <div class="text-center">
-        <div class="inline-block glass-effect rounded-2xl p-8">
-          <a href="{% url 'volunteer_app:admin_logout' %}" 
-             class="group inline-flex items-center px-10 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold text-lg rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105">
-            <svg class="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-            </svg>
-            <span class="tracking-wide">ออกจากระบบ</span>
-            <div class="ml-3 w-2 h-2 bg-white rounded-full opacity-75 group-hover:animate-ping"></div>
-          </a>
+    <!-- card -->
+    <div class="glass rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all card-animate">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-purple-600 text-white rounded-xl shadow-lg">
+          <i data-lucide="clock" class="w-7 h-7"></i>
         </div>
+      </div>
+      <p class="text-gray-700 text-xl font-semibold">ชั่วโมงรวม</p>
+      <p class="text-5xl font-black text-purple-700 mt-3 stat-number">{{ total_hours }}</p>
+    </div>
+
+    <!-- card -->
+    <div class="glass rounded-3xl p-8 shadow-2xl hover:scale-105 transition-all card-animate">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-yellow-600 text-white rounded-xl shadow-lg">
+          <i data-lucide="scan" class="w-7 h-7"></i>
+        </div>
+      </div>
+      <p class="text-gray-700 text-xl font-semibold">สแกน QR</p>
+      <p class="text-5xl font-black text-yellow-700 mt-3 stat-number">{{ total_qr_scans }}</p>
+    </div>
+
+  </div>
+
+ <!-- Additional Statistics -->
+  <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="glass rounded-2xl p-6 shadow-xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600">กิจกรรมที่กำลังจะมาถึง</p>
+          <p class="text-3xl font-black text-blue-600 mt-1">{{ activities_upcoming }}</p>
+        </div>
+        <i data-lucide="calendar" class="w-8 h-8 text-blue-500"></i>
+      </div>
+    </div>
+    <div class="glass rounded-2xl p-6 shadow-xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600">กิจกรรมที่กำลังดำเนินการ</p>
+          <p class="text-3xl font-black text-green-600 mt-1">{{ activities_ongoing }}</p>
+        </div>
+        <i data-lucide="play-circle" class="w-8 h-8 text-green-500"></i>
+      </div>
+    </div>
+    <div class="glass rounded-2xl p-6 shadow-xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600">ผู้ใช้ใหม่ (สัปดาห์นี้)</p>
+          <p class="text-3xl font-black text-purple-600 mt-1">{{ new_users_week }}</p>
+        </div>
+        <i data-lucide="user-plus" class="w-8 h-8 text-purple-500"></i>
+      </div>
+    </div>
+    <div class="glass rounded-2xl p-6 shadow-xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600">สแกน QR (สัปดาห์นี้)</p>
+          <p class="text-3xl font-black text-yellow-600 mt-1">{{ qr_scans_week }}</p>
+        </div>
+        <i data-lucide="scan" class="w-8 h-8 text-yellow-500"></i>
       </div>
     </div>
   </div>
+
+  <!-- Action Cards -->
+  <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+
+    <a href="{% url 'volunteer_app:admin_manage_activities' %}"
+      class="glass p-8 rounded-3xl shadow-xl hover:scale-105 transition-all text-center">
+      <i data-lucide="bolt" class="w-10 h-10 mx-auto text-[#41A67E] mb-3"></i>
+      <p class="text-xl font-bold text-gray-800">จัดการกิจกรรม</p>
+      <p class="text-gray-600">{{ total_activities }} รายการ</p>
+    </a>
+
+    <a href="{% url 'volunteer_app:admin_manage_ideas' %}"
+      class="glass p-8 rounded-3xl shadow-xl hover:scale-105 transition-all text-center relative">
+      {% if pending_ideas > 0 %}
+      <div class="absolute -top-1 -right-1 bg-red-600 text-white w-7 h-7 flex items-center justify-center text-xs rounded-full">
+        {{ pending_ideas }}
+      </div>
+      {% endif %}
+      <i data-lucide="lamp" class="w-10 h-10 mx-auto text-[#1055C9] mb-3"></i>
+      <p class="text-xl font-bold text-gray-800">จัดการ Ideas</p>
+      <p class="text-gray-600">{{ pending_ideas }} รออนุมัติ</p>
+    </a>
+
+    <a href="{% url 'volunteer_app:admin_manage_users' %}"
+      class="glass p-8 rounded-3xl shadow-xl hover:scale-105 transition-all text-center">
+      <i data-lucide="user-cog" class="w-10 h-10 mx-auto text-[#E5C95F] mb-3"></i>
+      <p class="text-xl font-bold text-gray-800">จัดการผู้ใช้</p>
+      <p class="text-gray-600">{{ total_users }} คน</p>
+    </a>
+
+  </div>
+
+  <!-- Recent Activities & Upcoming Activities -->
+  <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Recent Activities -->
+    <div class="glass rounded-3xl p-8 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+          <i data-lucide="clock" class="w-6 h-6 text-[#1055C9]"></i>
+          กิจกรรมล่าสุด
+        </h2>
+        <a href="{% url 'volunteer_app:admin_manage_activities' %}" class="text-sm text-[#1055C9] hover:underline">
+          ดูทั้งหมด →
+        </a>
+      </div>
+      {% if recent_activities %}
+      <div class="space-y-3">
+        {% for activity in recent_activities %}
+        <a href="{% url 'volunteer_app:activity_detail' activity.pk %}" 
+           class="block bg-white rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-all">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <p class="font-semibold text-gray-800">{{ activity.title }}</p>
+              <p class="text-sm text-gray-500 mt-1">{{ activity.datetime|date:"d/m/Y H:i" }} น.</p>
+            </div>
+            <span class="ml-3 px-2 py-1 text-xs font-medium rounded-full 
+              {% if activity.status == 'upcoming' %}bg-blue-100 text-blue-800
+              {% elif activity.status == 'ongoing' %}bg-green-100 text-green-800
+              {% elif activity.status == 'completed' %}bg-gray-100 text-gray-800
+              {% else %}bg-red-100 text-red-800{% endif %}">
+              {{ activity.get_status_display }}
+            </span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-500 text-center py-8">ยังไม่มีกิจกรรม</p>
+      {% endif %}
+    </div>
+
+    <!-- Upcoming Activities -->
+    <div class="glass rounded-3xl p-8 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+          <i data-lucide="calendar-days" class="w-6 h-6 text-[#41A67E]"></i>
+          กิจกรรมที่กำลังจะมาถึง
+        </h2>
+        <a href="{% url 'volunteer_app:admin_manage_activities' %}" class="text-sm text-[#41A67E] hover:underline">
+          ดูทั้งหมด →
+        </a>
+      </div>
+      {% if upcoming_activities %}
+      <div class="space-y-3">
+        {% for activity in upcoming_activities %}
+        <a href="{% url 'volunteer_app:activity_detail' activity.pk %}" 
+           class="block bg-white rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-all">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <p class="font-semibold text-gray-800">{{ activity.title }}</p>
+              <p class="text-sm text-gray-500 mt-1">{{ activity.datetime|date:"d/m/Y H:i" }} น.</p>
+              <p class="text-xs text-gray-400 mt-1">{{ activity.location }}</p>
+            </div>
+            <span class="ml-3 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+              {{ activity.hours_reward }} ชม.
+            </span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-500 text-center py-8">ไม่มีกิจกรรมที่กำลังจะมาถึง</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Users & Pending Ideas -->
+  <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Recent Users -->
+    <div class="glass rounded-3xl p-8 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+          <i data-lucide="user-plus" class="w-6 h-6 text-purple-500"></i>
+          ผู้ใช้ใหม่
+        </h2>
+        <a href="{% url 'volunteer_app:admin_manage_users' %}" class="text-sm text-purple-600 hover:underline">
+          ดูทั้งหมด →
+        </a>
+      </div>
+      {% if recent_users %}
+      <div class="space-y-3">
+        {% for user in recent_users %}
+        <div class="bg-white rounded-xl p-4 border border-gray-200">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+              {% if user.first_name %}
+                {{ user.first_name|slice:":1"|upper }}
+              {% else %}
+                {{ user.username|slice:":1"|upper }}
+              {% endif %}
+            </div>
+            <div class="flex-1">
+              <p class="font-semibold text-gray-800">
+                {% if user.get_full_name %}
+                  {{ user.get_full_name }}
+                {% else %}
+                  {{ user.username }}
+                {% endif %}
+              </p>
+              <p class="text-sm text-gray-500">{{ user.username }} • {{ user.date_joined|date:"d/m/Y" }}</p>
+            </div>
+            <a href="{% url 'volunteer_app:admin_edit_user' user.pk %}" 
+               class="text-[#1055C9] hover:text-[#05339C]">
+              <i data-lucide="edit" class="w-5 h-5"></i>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-500 text-center py-8">ยังไม่มีผู้ใช้ใหม่</p>
+      {% endif %}
+    </div>
+
+    <!-- Pending Ideas -->
+    <div class="glass rounded-3xl p-8 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+          <i data-lucide="lamp" class="w-6 h-6 text-[#1055C9]"></i>
+          Ideas รออนุมัติ
+        </h2>
+        <a href="{% url 'volunteer_app:admin_manage_ideas' %}" class="text-sm text-[#1055C9] hover:underline">
+          ดูทั้งหมด →
+        </a>
+      </div>
+      {% if pending_ideas_list %}
+      <div class="space-y-3">
+        {% for idea in pending_ideas_list %}
+        <div class="bg-white rounded-xl p-4 border border-gray-200">
+          <p class="font-semibold text-gray-800">{{ idea.title }}</p>
+          <p class="text-sm text-gray-500 mt-1">
+            โดย {% if idea.proposer %}{{ idea.proposer.get_full_name|default:idea.proposer.username }}{% else %}ไม่ระบุ{% endif %}
+            • {{ idea.created_at|date:"d/m/Y" }}
+          </p>
+          <p class="text-xs text-gray-400 mt-2 line-clamp-2">{{ idea.description|truncatewords:20 }}</p>
+          <div class="flex gap-2 mt-3">
+            <form method="post" action="{% url 'volunteer_app:admin_approve_idea' idea.pk %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="text-xs px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                อนุมัติ
+              </button>
+            </form>
+            <form method="post" action="{% url 'volunteer_app:admin_reject_idea' idea.pk %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="text-xs px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                ปฏิเสธ
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-500 text-center py-8">ไม่มี Ideas รออนุมัติ</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Volunteer Hours Management Section -->
+  <div class="mt-16">
+    <div class="glass rounded-3xl p-8 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <i data-lucide="award" class="w-8 h-8 text-[#E5C95F]"></i>
+            จัดการชั่วโมงจิตอาสา
+          </h2>
+          <p class="text-gray-600 mt-2">ตรวจสอบและจัดการชั่วโมงจิตอาสาของผู้ใช้</p>
+        </div>
+        <a href="{% url 'volunteer_app:admin_add_volunteer_hours' %}" 
+           class="inline-flex items-center px-4 py-2 bg-[#41A67E] hover:bg-[#369968] text-white font-semibold rounded-xl transition-colors">
+          <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+          เพิ่มชั่วโมงจิตอาสา
+        </a>
+      </div>
+
+      <!-- Top Users by Hours -->
+      {% if top_users %}
+      <div class="mb-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">ผู้ใช้ที่มีชั่วโมงจิตอาสาสูงสุด (10 อันดับแรก)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {% for item in top_users %}
+          <div class="bg-white rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3 flex-1">
+                <div class="w-12 h-12 bg-[#E5C95F] rounded-full flex items-center justify-center text-white font-bold">
+                  {% if item.user.first_name %}
+                    {{ item.user.first_name|slice:":1"|upper }}
+                  {% else %}
+                    {{ item.user.username|slice:":1"|upper }}
+                  {% endif %}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-gray-800 truncate">
+                    {% if item.user.get_full_name %}
+                      {{ item.user.get_full_name }}
+                    {% else %}
+                      {{ item.user.username }}
+                    {% endif %}
+                  </p>
+                  <p class="text-sm text-gray-500">{{ item.user.username }}</p>
+                </div>
+              </div>
+              <div class="text-right ml-4">
+                <p class="text-2xl font-bold text-[#E5C95F]">{{ item.total_hours }}</p>
+                <p class="text-xs text-gray-500">ชั่วโมง</p>
+                <a href="{% url 'volunteer_app:admin_view_user_hours' item.user.pk %}" 
+                   class="text-xs text-[#1055C9] hover:underline mt-1 block">
+                  ดูรายละเอียด
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- QR Scan History Section -->
+  <div class="mt-16">
+    <div class="glass rounded-3xl p-8 shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <i data-lucide="scan-line" class="w-8 h-8 text-[#1055C9]"></i>
+            ประวัติการสแกน QR Code
+          </h2>
+          <p class="text-gray-600 mt-2">รายชื่อผู้ที่ทำการสแกน QR code แล้ว (ล่าสุด 20 รายการ)</p>
+        </div>
+      </div>
+
+      {% if recent_qr_scans %}
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b-2 border-gray-300">
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">ผู้ใช้</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">กิจกรรม</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">ชั่วโมงที่ได้รับ</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">วันที่สแกน</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">เวลา</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for scan in recent_qr_scans %}
+            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+              <td class="py-4 px-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-[#1055C9] rounded-full flex items-center justify-center text-white font-bold">
+                    {% if scan.user.first_name %}
+                      {{ scan.user.first_name|slice:":1"|upper }}
+                    {% else %}
+                      {{ scan.user.username|slice:":1"|upper }}
+                    {% endif %}
+                  </div>
+                  <div>
+                    <p class="font-semibold text-gray-800">
+                      {% if scan.user.get_full_name %}
+                        {{ scan.user.get_full_name }}
+                      {% else %}
+                        {{ scan.user.username }}
+                      {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-500">{{ scan.user.username }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-4">
+                <p class="font-medium text-gray-800">{{ scan.activity.title }}</p>
+                <p class="text-sm text-gray-500">{{ scan.activity.location }}</p>
+              </td>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 font-semibold">
+                  <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                  {{ scan.activity.hours_reward }} ชม.
+                </span>
+              </td>
+              <td class="py-4 px-4 text-gray-700">
+                {{ scan.scanned_at|date:"d/m/Y" }}
+              </td>
+              <td class="py-4 px-4 text-gray-600">
+                {{ scan.scanned_at|date:"H:i" }} น.
+              </td>
+              <td class="py-4 px-4">
+                <form method="post" action="{% url 'volunteer_app:admin_delete_qr_scan' scan.pk %}" 
+                      onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบชั่วโมงจิตอาสานี้?');" 
+                      class="inline">
+                  {% csrf_token %}
+                  <button type="submit" 
+                          class="text-red-600 hover:text-red-800 transition-colors"
+                          title="ลบชั่วโมงจิตอาสา">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-12">
+        <i data-lucide="scan-line" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+        <p class="text-gray-500 text-lg">ยังไม่มีประวัติการสแกน QR code</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Logout -->
+  <div class="text-center mt-16">
+    <a href="{% url 'volunteer_app:admin_logout' %}"
+       class="inline-flex items-center px-10 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-2xl shadow-xl hover:scale-105 transition-all">
+      <i data-lucide="log-out" class="w-6 h-6 mr-2"></i>
+      ออกจากระบบ
+    </a>
+  </div>
+
 </div>
+
+<!-- Load Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+
 {% endblock %}

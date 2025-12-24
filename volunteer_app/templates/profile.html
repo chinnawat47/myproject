@@ -7,6 +7,28 @@
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-gray-900 mb-2" style="color: #05339C;">โปรไฟล์ผู้ใช้</h1>
       <div class="w-24 h-1 mx-auto rounded-full" style="background-color: #41A67E;"></div>
+      
+      <!-- Action Buttons -->
+      <div class="flex gap-3 justify-center mt-6">
+        <a 
+          href="{% url 'volunteer_app:edit_profile' %}"
+          class="inline-flex items-center px-4 py-2 bg-[#41A67E] hover:bg-[#369268] text-white font-medium rounded-lg transition-all duration-200"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          แก้ไขข้อมูล
+        </a>
+        <a 
+          href="{% url 'volunteer_app:change_password' %}"
+          class="inline-flex items-center px-4 py-2 bg-[#1055C9] hover:bg-[#0844a1] text-white font-medium rounded-lg transition-all duration-200"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+          </svg>
+          เปลี่ยนรหัสผ่าน
+        </a>
+      </div>
     </div>
 
     <!-- Profile Information Card -->
@@ -25,34 +47,56 @@
           <div class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center">
               <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-32 flex-shrink-0">คำนำหน้า:</label>
-              <span class="text-gray-900 font-medium">{{ user.title }}</span>
+              <span class="text-gray-900 font-medium">{{ user.title|default:"-" }}</span>
             </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center">
               <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-32 flex-shrink-0">ชื่อ-สกุล:</label>
-              <span class="text-gray-900 font-medium">{{ user.first_name }} {{ user.last_name }}</span>
+              <span class="text-gray-900 font-medium">
+                {% if user.first_name or user.last_name %}
+                  {{ user.first_name }} {{ user.last_name }}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-32 flex-shrink-0">อีเมล:</label>
+              <span class="text-gray-900 font-medium">{{ user.email|default:"-" }}</span>
             </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center">
               <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-32 flex-shrink-0">รหัสนักศึกษา:</label>
-              <span class="text-gray-900 font-medium">{{ user.student_id }}</span>
+              <span class="text-gray-900 font-medium">{{ user.student_id|default:"-" }}</span>
             </div>
           </div>
           
           <div class="space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center">
               <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-24 flex-shrink-0">คณะ:</label>
-              <span class="text-gray-900 font-medium">{{ user.faculty }}</span>
+              <span class="text-gray-900 font-medium">{{ user.faculty|default:"-" }}</span>
             </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center">
               <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-24 flex-shrink-0">สาขา:</label>
-              <span class="text-gray-900 font-medium">{{ user.department }}</span>
+              <span class="text-gray-900 font-medium">{{ user.department|default:"-" }}</span>
             </div>
             
             <div class="flex flex-col sm:flex-row sm:items-center">
               <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-24 flex-shrink-0">ชั้นปี:</label>
-              <span class="text-gray-900 font-medium">{{ user.year }}</span>
+              <span class="text-gray-900 font-medium">
+                {% if user.year %}
+                  {{ user.year }}
+                {% else %}
+                  -
+                {% endif %}
+              </span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <label class="text-sm font-medium text-gray-600 mb-1 sm:mb-0 sm:w-24 flex-shrink-0">Username:</label>
+              <span class="text-gray-900 font-medium">{{ user.username }}</span>
             </div>
           </div>
         </div>
@@ -71,6 +115,29 @@
         <div class="text-4xl font-bold text-white" aria-label="จำนวนชั่วโมงทั้งหมด {{ total_hours }} ชั่วโมง">
           {{ total_hours }} <span class="text-xl">ชั่วโมง</span>
         </div>
+      </div>
+      <div class="p-5 bg-gray-50 border-t border-gray-200">
+        {% if has_completed_hours %}
+          <div class="flex items-start gap-3 text-green-700">
+            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <p class="font-semibold">คุณมีชั่วโมงจิตอาสาเกินแล้ว ขอบคุณที่ช่วยสังคม!</p>
+              <p class="text-sm text-green-800">กำหนดขั้นต่ำ {{ required_hours }} ชั่วโมง คุณทำได้ {{ total_hours }} ชั่วโมง</p>
+            </div>
+          </div>
+        {% else %}
+          <div class="flex items-start gap-3 text-yellow-700">
+            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <p class="font-semibold">ต้องทำจิตอาสาอย่างน้อย {{ required_hours }} ชั่วโมง</p>
+              <p class="text-sm text-yellow-800">ยังขาดอีก {{ remaining_hours }} ชั่วโมง</p>
+            </div>
+          </div>
+        {% endif %}
       </div>
     </div>
 

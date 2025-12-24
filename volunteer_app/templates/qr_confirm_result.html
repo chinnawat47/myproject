@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{% if success %}ยืนยันสำเร็จ{% else %}เกิดข้อผิดพลาด{% endif %}{% endblock %}
+{% block content %}
+
+<style>
+.glass {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.75);
+}
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-[#05339C] via-[#1055C9] to-[#41A67E] py-12 px-4 md:px-10 lg:px-20">
+  <div class="max-w-2xl mx-auto">
+    <div class="glass rounded-3xl p-8 shadow-2xl text-center">
+      {% if success %}
+      <!-- Success State -->
+      <div class="mb-6">
+        <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">ยืนยันสำเร็จ!</h1>
+        <p class="text-lg text-gray-700 mb-4">{{ message }}</p>
+        
+        {% if activity %}
+        <div class="bg-white rounded-xl p-6 mt-6 text-left">
+          <h2 class="text-xl font-bold text-gray-800 mb-4">รายละเอียดกิจกรรม</h2>
+          <div class="space-y-2">
+            <p class="text-gray-700"><strong>ชื่อกิจกรรม:</strong> {{ activity.title }}</p>
+            <p class="text-gray-700"><strong>วันที่:</strong> {{ activity.datetime|date:"d/m/Y H:i" }} น.</p>
+            <p class="text-gray-700"><strong>สถานที่:</strong> {{ activity.location }}</p>
+            <p class="text-gray-700"><strong>ชั่วโมงที่ได้รับ:</strong> 
+              <span class="text-green-600 font-bold">{{ hours_reward }} ชั่วโมง</span>
+            </p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% else %}
+      <!-- Error State -->
+      <div class="mb-6">
+        <div class="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">เกิดข้อผิดพลาด</h1>
+        <p class="text-lg text-red-600 mb-4">{{ message }}</p>
+        {% if help %}
+        <p class="text-sm text-gray-600 mb-4">{{ help }}</p>
+        {% endif %}
+        
+        {% if activity %}
+        <div class="bg-white rounded-xl p-6 mt-6 text-left">
+          <h2 class="text-xl font-bold text-gray-800 mb-4">รายละเอียดกิจกรรม</h2>
+          <div class="space-y-2">
+            <p class="text-gray-700"><strong>ชื่อกิจกรรม:</strong> {{ activity.title }}</p>
+            <p class="text-gray-700"><strong>วันที่:</strong> {{ activity.datetime|date:"d/m/Y H:i" }} น.</p>
+            <p class="text-gray-700"><strong>สถานที่:</strong> {{ activity.location }}</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="flex gap-4 justify-center mt-8">
+        <a href="{% url 'volunteer_app:profile' %}" 
+           class="px-6 py-3 bg-[#1055C9] hover:bg-[#05339C] text-white font-semibold rounded-xl transition-colors">
+          ดูโปรไฟล์
+        </a>
+        <a href="{% url 'volunteer_app:activities' %}" 
+           class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors">
+          กลับไปหน้ากิจกรรม
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+

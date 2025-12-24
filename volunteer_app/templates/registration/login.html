@@ -131,7 +131,7 @@
               class="input-field focus-ring w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 
                      focus:outline-none focus:ring-2 focus:ring-[#41A67E] focus:border-[#41A67E] bg-gray-50 focus:bg-white
                      transition-all duration-200"
-              placeholder="กรอกชื่อผู้ใช้หรืออีเมล"
+              placeholder="ชื่อผู้ใช้หรืออีเมลของคุณ"
               aria-describedby="username-help"
               value="{{ username|default:'' }}"
             />
@@ -142,7 +142,7 @@
             </div>
           </div>
           <p id="username-help" class="mt-1 text-xs text-gray-500">
-            ใช้ชื่อผู้ใช้หรือที่อยู่อีเมลของคุณ
+            คุณสามารถใช้ชื่อผู้ใช้ (username) หรืออีเมล (email) ในการเข้าสู่ระบบได้
           </p>
         </div>
 
@@ -325,9 +325,17 @@
     }
     
     // Email validation for username field if it looks like an email
+    // Note: We allow both username and email, so only validate email format if @ is present
     if (field.name === 'username' && value.includes('@')) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
+        isValid = false;
+      }
+    }
+    // Username validation - allow alphanumeric, underscore, dot, and hyphen
+    if (field.name === 'username' && value && !value.includes('@')) {
+      const usernameRegex = /^[a-zA-Z0-9._-]+$/;
+      if (!usernameRegex.test(value)) {
         isValid = false;
       }
     }

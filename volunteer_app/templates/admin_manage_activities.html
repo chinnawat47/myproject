@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-full bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-[#05339C]">จัดการกิจกรรม</h1>
+        <p class="text-gray-600 mt-2">ดู แก้ไข และลบกิจกรรม</p>
+      </div>
+      <a 
+        href="{% url 'volunteer_app:create_activity' %}"
+        class="inline-flex items-center px-4 py-2.5 bg-[#41A67E] hover:bg-[#369268] text-white font-medium rounded-lg transition-all duration-200"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        สร้างกิจกรรมใหม่
+      </a>
+    </div>
+
+    <!-- Activities Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+      {% if activities %}
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ชื่อกิจกรรม</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">วันที่</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">สถานะ</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ผู้สมัคร</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ชั่วโมง</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {% for activity in activities %}
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                  <td class="px-6 py-4">
+                    <a href="{% url 'volunteer_app:activity_detail' activity.pk %}" class="text-[#1055C9] hover:underline font-medium">
+                      {{ activity.title }}
+                    </a>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ activity.datetime|date:"d M Y H:i" }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold
+                      {% if activity.status == 'upcoming' %}
+                        bg-blue-100 text-blue-800
+                      {% elif activity.status == 'ongoing' %}
+                        bg-green-100 text-green-800
+                      {% elif activity.status == 'completed' %}
+                        bg-gray-100 text-gray-800
+                      {% else %}
+                        bg-red-100 text-red-800
+                      {% endif %}
+                    ">
+                      {{ activity.get_status_display }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ activity.spots_taken }} / {{ activity.capacity }}
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ activity.hours_reward }} ชม.
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                      <a 
+                        href="{% url 'volunteer_app:admin_edit_activity' activity.pk %}"
+                        class="text-[#1055C9] hover:text-[#0844a1] font-medium text-sm"
+                        title="แก้ไข"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                      </a>
+                      <form 
+                        method="post" 
+                        action="{% url 'volunteer_app:admin_delete_activity' activity.pk %}"
+                        style="display: inline;"
+                        onsubmit="return confirm('คุณแน่ใจหรือว่าต้องการลบกิจกรรมนี้?');"
+                      >
+                        {% csrf_token %}
+                        <button 
+                          type="submit"
+                          class="text-red-600 hover:text-red-800 font-medium text-sm"
+                          title="ลบ"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="px-6 py-12 text-center">
+          <svg class="mx-auto w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900">ไม่มีกิจกรรม</h3>
+          <p class="text-gray-600 mt-2">ยังไม่มีกิจกรรมที่สร้างไว้</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-full bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-[#05339C]">จัดการข้อเสนอไอเดีย</h1>
+        <p class="text-gray-600 mt-2">อนุมัติหรือปฏิเสธข้อเสนอไอเดีย</p>
+      </div>
+    </div>
+
+    <!-- Ideas Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+      {% if ideas %}
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ชื่อไอเดีย</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ผู้เสนอ</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">สถานะ</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ชั่วโมง</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">วันที่</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {% for idea in ideas %}
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                  <td class="px-6 py-4">
+                    <div>
+                      <p class="font-medium text-gray-900">{{ idea.title }}</p>
+                      <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ idea.description }}</p>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ idea.proposer.get_full_name|default:idea.proposer.username }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold
+                      {% if idea.status == 'pending' %}
+                        bg-yellow-100 text-yellow-800
+                      {% elif idea.status == 'approved' %}
+                        bg-green-100 text-green-800
+                      {% else %}
+                        bg-red-100 text-red-800
+                      {% endif %}
+                    ">
+                      {% if idea.status == 'pending' %}
+                        รอการอนุมัติ
+                      {% elif idea.status == 'approved' %}
+                        อนุมัติแล้ว
+                      {% else %}
+                        ปฏิเสธแล้ว
+                      {% endif %}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ idea.target_hours }} ชม.
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ idea.created_at|date:"d M Y" }}
+                  </td>
+                  <td class="px-6 py-4">
+                    {% if idea.status == 'pending' %}
+                      <div class="flex gap-2">
+                        <form 
+                          method="post" 
+                          action="{% url 'volunteer_app:admin_approve_idea' idea.pk %}"
+                          style="display: inline;"
+                        >
+                          {% csrf_token %}
+                          <button 
+                            type="submit"
+                            class="text-green-600 hover:text-green-800 font-medium text-sm"
+                            title="อนุมัติ"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          </button>
+                        </form>
+                        <form 
+                          method="post" 
+                          action="{% url 'volunteer_app:admin_reject_idea' idea.pk %}"
+                          style="display: inline;"
+                        >
+                          {% csrf_token %}
+                          <button 
+                            type="submit"
+                            class="text-red-600 hover:text-red-800 font-medium text-sm"
+                            title="ปฏิเสธ"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2m8-8a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                          </button>
+                        </form>
+                      </div>
+                    {% else %}
+                      <span class="text-gray-500 text-sm">-</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="px-6 py-12 text-center">
+          <svg class="mx-auto w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900">ไม่มีไอเดีย</h3>
+          <p class="text-gray-600 mt-2">ไม่มีไอเดียที่รออนุมัติ</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

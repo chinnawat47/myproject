@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}ชั่วโมงจิตอาสา - {{ user.get_full_name|default:user.username }}{% endblock %}
+{% block content %}
+
+<style>
+.glass {
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.75);
+}
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-[#05339C] via-[#1055C9] to-[#41A67E] py-12 px-4 md:px-10 lg:px-20">
+  <div class="max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="text-center text-white mb-8">
+      <h1 class="text-4xl font-extrabold tracking-tight drop-shadow-xl">ชั่วโมงจิตอาสา</h1>
+      <p class="text-lg opacity-90 mt-3">{{ user.get_full_name|default:user.username }} ({{ user.username }})</p>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="glass rounded-3xl p-8 shadow-2xl mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-600 text-lg">ชั่วโมงจิตอาสารวม</p>
+          <p class="text-5xl font-black text-[#E5C95F] mt-2">{{ total_hours }} ชั่วโมง</p>
+        </div>
+        <div class="w-20 h-20 bg-[#E5C95F] rounded-full flex items-center justify-center">
+          <i data-lucide="award" class="w-10 h-10 text-white"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="glass rounded-3xl p-8 shadow-2xl">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">ประวัติการได้รับชั่วโมงจิตอาสา</h2>
+      
+      {% if scans %}
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b-2 border-gray-300">
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">กิจกรรม</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">ชั่วโมงที่ได้รับ</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">วันที่สแกน</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">เวลา</th>
+              <th class="text-left py-4 px-4 text-gray-700 font-semibold">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for scan in scans %}
+            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+              <td class="py-4 px-4">
+                <p class="font-medium text-gray-800">{{ scan.activity.title }}</p>
+                <p class="text-sm text-gray-500">{{ scan.activity.location }}</p>
+              </td>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 font-semibold">
+                  <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                  {{ scan.activity.hours_reward }} ชม.
+                </span>
+              </td>
+              <td class="py-4 px-4 text-gray-700">
+                {{ scan.scanned_at|date:"d/m/Y" }}
+              </td>
+              <td class="py-4 px-4 text-gray-600">
+                {{ scan.scanned_at|date:"H:i" }} น.
+              </td>
+              <td class="py-4 px-4">
+                <form method="post" action="{% url 'volunteer_app:admin_delete_qr_scan' scan.pk %}" 
+                      onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบชั่วโมงจิตอาสานี้?');" 
+                      class="inline">
+                  {% csrf_token %}
+                  <button type="submit" 
+                          class="text-red-600 hover:text-red-800 transition-colors"
+                          title="ลบชั่วโมงจิตอาสา">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-12">
+        <i data-lucide="award" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+        <p class="text-gray-500 text-lg">ยังไม่มีประวัติการได้รับชั่วโมงจิตอาสา</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mt-8">
+      <a href="{% url 'volunteer_app:admin_dashboard' %}" 
+         class="inline-flex items-center px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-xl transition-colors">
+        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+        กลับไปหน้าแดชบอร์ด
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Load Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+
+{% endblock %}
+

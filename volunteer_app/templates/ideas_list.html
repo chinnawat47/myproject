@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}โหวตไอเดียกิจกรรม{% endblock %}
+
+{% block content %}
+<div class="py-8 space-y-8">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div>
+      <p class="text-sm uppercase tracking-wide text-primary font-semibold">Idea Voting</p>
+      <h1 class="text-3xl font-bold text-gray-900 mt-1">โหวตไอเดียกิจกรรมที่คุณอยากเห็น</h1>
+      <p class="text-gray-600 mt-2">โหวตสนับสนุนไอเดียที่คุณชื่นชอบ ไอเดียที่ได้คะแนนสูงจะได้รับการพิจารณาเป็นพิเศษ</p>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <a href="{% url 'volunteer_app:propose_idea' %}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-primary bg-white font-semibold text-primary shadow-sm hover:bg-primary hover:text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        ส่งไอเดียใหม่
+      </a>
+      <a href="{% url 'volunteer_app:activities' %}" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-primary bg-white font-semibold text-primary shadow-sm hover:bg-primary hover:text-white transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+        ดูกิจกรรมทั้งหมด
+      </a>
+    </div>
+  </div>
+
+  <form method="get" class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label for="q" class="text-sm font-semibold text-gray-600">ค้นหาไอเดีย</label>
+      <input type="search" id="q" name="q" value="{{ q }}" placeholder="เช่น กิจกรรมสิ่งแวดล้อม"
+             class="mt-2 w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition" />
+    </div>
+    <div>
+      <label for="status" class="text-sm font-semibold text-gray-600">สถานะ</label>
+      <select id="status" name="status" class="mt-2 w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition">
+        <option value="">ทั้งหมด</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="self-end">
+      <button type="submit" class="w-full px-6 py-3 bg-primary text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-150 focus:outline-none focus:ring-4 focus:ring-primary focus:ring-opacity-40">
+        ค้นหา
+      </button>
+    </div>
+  </form>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for idea in ideas %}
+    <article class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 space-y-4 relative overflow-hidden">
+      <div class="flex justify-between items-start gap-4">
+        <div>
+          <p class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold 
+            {% if idea.status == 'approved' %}bg-green-100 text-green-700
+            {% elif idea.status == 'rejected' %}bg-red-100 text-red-700
+            {% else %}bg-blue-100 text-blue-700{% endif %}">
+            {{ idea.get_status_display }}
+          </p>
+          <h2 class="mt-3 text-2xl font-bold text-gray-900">{{ idea.title }}</h2>
+          <p class="text-gray-600 mt-2 leading-relaxed">{{ idea.description|truncatewords:40 }}</p>
+        </div>
+        <div class="text-center flex-shrink-0 bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100">
+          <p class="text-sm text-gray-500">คะแนนโหวต</p>
+          <p class="text-3xl font-extrabold text-primary mt-1" data-idea-count="{{ idea.id }}">{{ idea.vote_total }}</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+        <span>
+          เสนอโดย
+          {% if idea.proposer %}
+            {{ idea.proposer.get_full_name|default:idea.proposer.username }}
+          {% else %}
+            ไม่ระบุ
+          {% endif %}
+        </span>
+        <span>•</span>
+        <span>เป้าหมาย {{ idea.target_hours }} ชั่วโมง</span>
+        <span>•</span>
+        <span>ส่งเมื่อ {{ idea.created_at|date:"d/m/Y" }}</span>
+      </div>
+      {% if idea.status == "pending" %}
+      <form method="post"
+            action="{% url 'volunteer_app:vote_idea' idea.pk %}"
+            class="idea-vote-form"
+            data-idea-id="{{ idea.id }}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="{% if idea.user_voted %}unvote{% else %}vote{% endif %}">
+        <button type="submit"
+          class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-primary focus:ring-opacity-50 text-white {% if idea.user_voted %}bg-gradient-to-r from-green-500 to-emerald-600{% else %}bg-primary{% endif %}"
+          data-voted="{{ idea.user_voted|yesno:'true,false' }}">
+          {% if idea.user_voted %}
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          โหวตแล้ว - กดเพื่อยกเลิก
+          {% else %}
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5v14"></path>
+          </svg>
+          โหวตสนับสนุนไอเดียนี้
+          {% endif %}
+        </button>
+      </form>
+      {% else %}
+      <div class="px-4 py-3 rounded-xl bg-gray-100 text-center text-gray-500 font-medium">
+        ปิดการโหวตแล้ว
+      </div>
+      {% endif %}
+    </article>
+    {% empty %}
+    <div class="col-span-full text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
+      <p class="text-lg text-gray-600">ยังไม่มีไอเดียให้โหวต</p>
+      <p class="text-sm text-gray-400 mt-2">เป็นคนแรกที่เสนอไอเดียใหม่เลย!</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+  (function() {
+    const voteForms = document.querySelectorAll(".idea-vote-form");
+    voteForms.forEach(form => {
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const ideaId = form.dataset.ideaId;
+        const submitBtn = form.querySelector("button[type='submit']");
+        const actionInput = form.querySelector("input[name='action']");
+        const csrfToken = form.querySelector("input[name='csrfmiddlewaretoken']").value;
+
+        submitBtn.disabled = true;
+        submitBtn.classList.add("opacity-70", "cursor-not-allowed");
+
+        try {
+          const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              "X-CSRFToken": csrfToken,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams(new FormData(form))
+          });
+
+          if (!response.ok) throw new Error("network error");
+          const data = await response.json();
+          if (data.ok) {
+            const countEl = document.querySelector(`[data-idea-count='${ideaId}']`);
+            if (countEl) {
+              countEl.textContent = data.votes;
+            }
+
+            if (data.voted) {
+              actionInput.value = "unvote";
+              submitBtn.innerHTML = `
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                โหวตแล้ว - กดเพื่อยกเลิก
+              `;
+              submitBtn.classList.remove("bg-primary");
+              submitBtn.classList.add("bg-gradient-to-r", "from-green-500", "to-emerald-600");
+              submitBtn.classList.add("text-white");
+            } else {
+              actionInput.value = "vote";
+              submitBtn.innerHTML = `
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5v14"></path>
+                </svg>
+                โหวตสนับสนุนไอเดียนี้
+              `;
+              submitBtn.classList.remove("bg-gradient-to-r", "from-green-500", "to-emerald-600");
+              submitBtn.classList.add("bg-primary");
+              submitBtn.classList.add("text-white");
+            }
+          }
+        } catch (err) {
+          alert("เกิดข้อผิดพลาดในการบันทึกโหวต กรุณาลองใหม่");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
+        }
+      });
+    });
+  })();
+</script>
+{% endblock %}
+

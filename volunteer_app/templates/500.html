@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+  <div class="max-w-md w-full text-center">
+    <!-- Error Icon -->
+    <div class="mx-auto w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mb-6">
+      <svg class="w-10 h-10 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M7.08 6.47a7.502 7.502 0 1015.84 0"></path>
+      </svg>
+    </div>
+
+    <!-- Error Code -->
+    <h1 class="text-6xl font-bold text-[#05339C] mb-2">500</h1>
+
+    <!-- Error Title -->
+    <h2 class="text-2xl font-semibold text-gray-900 mb-4">ข้อผิดพลาดในเซิร์ฟเวอร์</h2>
+
+    <!-- Error Description -->
+    <p class="text-gray-600 mb-8 leading-relaxed">
+      มีข้อผิดพลาดที่ไม่คาดคิดเกิดขึ้น โปรดลองอีกครั้งในภายหลัง
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col gap-3">
+      <a 
+        href="{% url 'volunteer_app:index' %}"
+        class="inline-flex items-center justify-center px-6 py-3 bg-[#41A67E] hover:bg-[#369268] text-white font-semibold rounded-lg transition-all duration-200"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8M3 12a9 9 0 0018 0m0 0a9 9 0 01-18 0"></path>
+        </svg>
+        กลับไปหน้าแรก
+      </a>
+      <a 
+        href="javascript:history.back()"
+        class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all duration-200"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        ย้อนกลับ
+      </a>
+    </div>
+
+    <!-- Help Text -->
+    <p class="text-sm text-gray-500 mt-8">
+      หากปัญหาแก้ไม่ได้ กรุณาติดต่อผู้ดูแลระบบ
+    </p>
+  </div>
+</div>
+{% endblock %}

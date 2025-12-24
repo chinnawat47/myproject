@@ -9,6 +9,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Secret for signing QR tokens (can be overridden via env)
+QR_SECRET = os.environ.get("QR_SECRET", SECRET_KEY)
+
 
 # ------------------------
 # INSTALLED APPS
@@ -79,6 +82,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # Add unread notifications count for templates
+                "volunteer_app.context_processors.unread_notifications",
             ],
         },
     },

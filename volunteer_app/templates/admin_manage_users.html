@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-full bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-[#05339C]">จัดการผู้ใช้</h1>
+        <p class="text-gray-600 mt-2">ดู แก้ไข และลบบัญชีผู้ใช้</p>
+      </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+      {% if users %}
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200">
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">ชื่อผู้ใช้</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">อีเมล</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">สถานะ</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">บทบาท</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">เข้าร่วมเมื่อ</th>
+                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {% for user in users %}
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
+                  <td class="px-6 py-4">
+                    <div>
+                      <p class="font-medium text-gray-900">{{ user.get_full_name|default:user.username }}</p>
+                      <p class="text-sm text-gray-600">@{{ user.username }}</p>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ user.email }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold
+                      {% if user.is_active %}
+                        bg-green-100 text-green-800
+                      {% else %}
+                        bg-red-100 text-red-800
+                      {% endif %}
+                    ">
+                      {% if user.is_active %}
+                        ใช้งาน
+                      {% else %}
+                        ปิดใช้งาน
+                      {% endif %}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex flex-wrap gap-2">
+                      {% if user.roles.all %}
+                        {% for role in user.roles.all %}
+                          <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold
+                            {% if role.code == 'admin' %}bg-purple-100 text-purple-800
+                            {% elif role.code == 'staff' %}bg-blue-100 text-blue-800
+                            {% elif role.code == 'leader' %}bg-amber-100 text-amber-800
+                            {% elif role.code == 'reviewer' %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ role.name }}
+                          </span>
+                        {% endfor %}
+                      {% else %}
+                        <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                          User
+                        </span>
+                      {% endif %}
+                      {% if user.is_superuser %}
+                        <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-pink-100 text-pink-800">
+                          Superuser
+                        </span>
+                      {% elif user.is_staff %}
+                        <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200">
+                          Staff Flag
+                        </span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-600">
+                    {{ user.date_joined|date:"d M Y" }}
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                      <a 
+                        href="{% url 'volunteer_app:admin_edit_user' user.pk %}"
+                        class="text-[#1055C9] hover:text-[#0844a1] font-medium text-sm"
+                        title="แก้ไข"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                      </a>
+                      {% if user != request.user %}
+                        <form 
+                          method="post" 
+                          action="{% url 'volunteer_app:admin_delete_user' user.pk %}"
+                          style="display: inline;"
+                          onsubmit="return confirm('คุณแน่ใจหรือว่าต้องการลบผู้ใช้นี้?');"
+                        >
+                          {% csrf_token %}
+                          <button 
+                            type="submit"
+                            class="text-red-600 hover:text-red-800 font-medium text-sm"
+                            title="ลบ"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                          </button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="px-6 py-12 text-center">
+          <svg class="mx-auto w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900">ไม่มีผู้ใช้</h3>
+          <p class="text-gray-600 mt-2">ไม่มีบัญชีผู้ใช้ในระบบ</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

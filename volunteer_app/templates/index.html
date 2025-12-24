@@ -35,39 +35,168 @@ body {
 .hover\:bg-dark-blue:hover { background-color: var(--dark-blue); }
 .hover\:bg-primary-dark:hover { background-color: #2d7a5a; }
 
+/* Hero Section Enhancements */
 .hero-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+  background: linear-gradient(135deg, #05339C 0%, #1055C9 50%, #41A67E 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.hero-icon {
+  animation: float 3s ease-in-out infinite;
 }
 
 .card-hover {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.card-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(65, 166, 126, 0.1) 0%, rgba(16, 85, 201, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  border-radius: 1rem;
+  z-index: 0;
+}
+
+.card-hover:hover::before {
+  opacity: 1;
 }
 
 .card-hover:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+  position: relative;
+  z-index: 1;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary) 0%, #2d7a5a 100%);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-primary:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn-primary:hover {
   background: linear-gradient(135deg, #2d7a5a 0%, var(--dark-blue) 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(65, 166, 126, 0.3);
+  box-shadow: 0 10px 25px rgba(65, 166, 126, 0.4);
 }
 
 .btn-secondary {
   background: linear-gradient(135deg, var(--blue) 0%, var(--dark-blue) 100%);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-secondary:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn-secondary:hover {
   background: linear-gradient(135deg, var(--dark-blue) 0%, #041f5c 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 85, 201, 0.3);
+  box-shadow: 0 10px 25px rgba(16, 85, 201, 0.4);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.activity-card {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.activity-card:nth-child(1) { animation-delay: 0.1s; }
+.activity-card:nth-child(2) { animation-delay: 0.2s; }
+.activity-card:nth-child(3) { animation-delay: 0.3s; }
+.activity-card:nth-child(4) { animation-delay: 0.4s; }
+.activity-card:nth-child(5) { animation-delay: 0.5s; }
+.activity-card:nth-child(6) { animation-delay: 0.6s; }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
@@ -83,21 +212,29 @@ body {
 </style>
 
 <!-- Hero Section -->
-<section class="hero-gradient text-white py-16 lg:py-24 px-4 sm:px-6 lg:px-8 rounded-2xl mb-12" role="banner">
-  <div class="max-w-7xl mx-auto text-center">
-    <h1 class="hero-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight">
-      ยินดีต้อนรับสู่ระบบจิตอาสา
+<section class="hero-gradient text-white py-20 lg:py-32 px-4 sm:px-6 lg:px-8 rounded-3xl mb-16 shadow-2xl" role="banner">
+  <div class="max-w-7xl mx-auto hero-content text-center">
+    <div class="hero-icon mb-8">
+      <div class="inline-flex items-center justify-center w-24 h-24 bg-white bg-opacity-20 rounded-full backdrop-blur-sm">
+        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+        </svg>
+      </div>
+    </div>
+    <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-6 leading-tight drop-shadow-lg">
+      ยินดีต้อนรับสู่<br class="hidden sm:block">ระบบจิตอาสา
     </h1>
-    <p class="hero-subtitle text-lg sm:text-xl lg:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed opacity-95">
-      ร่วมสร้างการเปลี่ยนแปลงเชิงบวกให้กับสังคม ดูและสมัครกิจกรรม จัดการกลุ่ม และยืนยันชั่วโมงผ่าน QR code อย่างง่ายดาย
+    <p class="hero-subtitle text-xl sm:text-2xl lg:text-3xl mb-12 max-w-3xl mx-auto leading-relaxed opacity-95 font-light">
+      ร่วมสร้างการเปลี่ยนแปลงเชิงบวกให้กับสังคม<br class="hidden md:block">
+      ดูและสมัครกิจกรรม จัดการกลุ่ม และยืนยันชั่วโมงผ่าน QR code อย่างง่ายดาย
     </p>
     
-    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
+    <div class="flex flex-col sm:flex-row gap-5 justify-center items-center mt-12">
       <a href="{% url 'volunteer_app:activities' %}" 
-         class="btn-primary w-full sm:w-auto px-8 py-4 text-white rounded-xl font-semibold text-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 transition-all duration-300"
+         class="btn-primary w-full sm:w-auto px-10 py-4 text-white rounded-2xl font-bold text-lg shadow-2xl focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 transition-all duration-300 relative z-10"
          aria-label="ดูกิจกรรมทั้งหมดที่เปิดรับสมัคร">
-        <span class="flex items-center justify-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <span class="flex items-center justify-center relative z-10">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
           </svg>
           กิจกรรมทั้งหมด
@@ -105,10 +242,10 @@ body {
       </a>
       
       <a href="{% url 'volunteer_app:qr_scan' %}" 
-         class="btn-secondary w-full sm:w-auto px-8 py-4 text-white rounded-xl font-semibold text-lg shadow-lg focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 transition-all duration-300"
+         class="btn-secondary w-full sm:w-auto px-10 py-4 text-white rounded-2xl font-bold text-lg shadow-2xl focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 transition-all duration-300 relative z-10"
          aria-label="สแกน QR Code เพื่อยืนยันชั่วโมงจิตอาสา">
-        <span class="flex items-center justify-center">
-          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <span class="flex items-center justify-center relative z-10">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h2M4 4h5v5H4V4zm11 0h5v5h-5V4zM4 15h5v5H4v-5z"></path>
           </svg>
           สแกน QR ยืนยันชั่วโมง
@@ -123,98 +260,187 @@ body {
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-12">
       <h2 id="featured-activities" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-dark-blue mb-4">
-        กิจกรรมเด่น
+        กิจกรรมล่าสุด
       </h2>
       <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        เลือกกิจกรรมที่คุณสนใจและร่วมสร้างการเปลี่ยนแปลงเชิงบวกให้กับสังคม
+        กิจกรรมใหม่ที่เพิ่งเพิ่มเข้ามา เลือกกิจกรรมที่คุณสนใจและร่วมสร้างการเปลี่ยนแปลงเชิงบวกให้กับสังคม
       </p>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10">
-      
-      <!-- กิจกรรม 1: ปลูกต้นไม้ -->
-      <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover focus-within:ring-4 focus-within:ring-primary focus-within:ring-opacity-50">
-        <div class="relative overflow-hidden">
-          <img src="https://www.seub.or.th/seubweb/wp-content/uploads/2024/01/%E0%B8%9B%E0%B8%A5%E0%B8%B9%E0%B8%81%E0%B8%9B%E0%B9%88%E0%B8%B2.jpg" 
-               alt="กิจกรรมปลูกต้นไม้ในชุมชน มีอาสาสมัครกำลังปลูกต้นไม้เพื่อสิ่งแวดล้อม" 
-               class="w-full h-56 sm:h-64 object-cover transition-transform duration-300 hover:scale-105"
-               loading="lazy"
-               onerror="this.src=''; this.alt='รูปภาพไม่สามารถโหลดได้'; this.style.display='none';">
-          <div class="absolute top-4 left-4">
-            <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">สิ่งแวดล้อม</span>
+      {% if recent_activities %}
+        {% for activity in recent_activities %}
+        <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover focus-within:ring-4 focus-within:ring-primary focus-within:ring-opacity-50">
+          <div class="relative overflow-hidden">
+            {% if activity.image %}
+            <img src="{{ activity.image.url }}" 
+                 alt="{{ activity.title }}" 
+                 class="w-full h-56 sm:h-64 object-cover transition-transform duration-300 hover:scale-105"
+                 loading="lazy">
+            {% else %}
+            <div class="w-full h-56 sm:h-64 bg-gradient-to-br from-[#41A67E] to-[#1055C9] flex items-center justify-center">
+              <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            {% endif %}
+            <div class="absolute top-4 left-4">
+              <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+                {{ activity.get_category_display }}
+              </span>
+            </div>
+            {% if activity.is_full %}
+            <div class="absolute top-4 right-4">
+              <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                เต็มแล้ว
+              </span>
+            </div>
+            {% endif %}
           </div>
-        </div>
-        <div class="p-6">
-          <h3 class="font-bold text-primary text-xl lg:text-2xl mb-3">ปลูกต้นไม้</h3>
-          <p class="text-gray-700 mb-6 leading-relaxed">
-            ร่วมกิจกรรมปลูกต้นไม้เพื่อสิ่งแวดล้อมและชุมชนของเรา สร้างพื้นที่สีเขียวและลดมลพิษทางอากาศ
-          </p>
-          <a href="{% url 'volunteer_app:activities' %}" 
-             class="inline-flex items-center px-6 py-3 bg-blue text-white rounded-xl font-semibold hover:bg-dark-blue transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue focus:ring-opacity-50 shadow-md hover:shadow-lg"
-             aria-label="ดูรายละเอียดกิจกรรมปลูกต้นไม้">
-            ดูรายละเอียด
-            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </a>
-        </div>
-      </article>
-
-      <!-- กิจกรรม 2: บริจาคอาหารสุนัข -->
-      <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover focus-within:ring-4 focus-within:ring-primary focus-within:ring-opacity-50">
-        <div class="relative overflow-hidden">
-          <img src="https://cdn.zipeventapp.com/blog/2024/06/2024-06-25_07-14-36_bn-dog-food-blog-985x515.png" 
-               alt="กิจกรรมบริจาคอาหารสุนัข มีอาสาสมัครกำลังให้อาหารสุนัขจรจัด" 
-               class="w-full h-56 sm:h-64 object-cover transition-transform duration-300 hover:scale-105"
-               loading="lazy">
-          <div class="absolute top-4 left-4">
-            <span class="bg-gold text-dark-blue px-3 py-1 rounded-full text-sm font-medium">สวัสดิการสัตว์</span>
+          <div class="p-6">
+            <h3 class="font-bold text-primary text-xl lg:text-2xl mb-3 line-clamp-2">{{ activity.title }}</h3>
+            <p class="text-gray-700 mb-4 leading-relaxed line-clamp-3">
+              {{ activity.description|truncatewords:25 }}
+            </p>
+            <div class="flex items-center gap-4 mb-4 text-sm text-gray-600">
+              <div class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {{ activity.datetime|date:"d/m/Y H:i" }}
+              </div>
+              <div class="flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ activity.hours_reward }} ชม.
+              </div>
+            </div>
+            <a href="{% url 'volunteer_app:activity_detail' activity.pk %}" 
+               class="inline-flex items-center px-6 py-3 bg-blue text-white rounded-xl font-semibold hover:bg-dark-blue transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue focus:ring-opacity-50 shadow-md hover:shadow-lg"
+               aria-label="ดูรายละเอียดกิจกรรม {{ activity.title }}">
+              ดูรายละเอียด
+              <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
           </div>
+        </article>
+        {% endfor %}
+      {% else %}
+        <!-- Empty State -->
+        <div class="col-span-full text-center py-12">
+          <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          <p class="text-gray-500 text-lg mb-4">ยังไม่มีกิจกรรม</p>
+          <p class="text-gray-400 text-sm">กิจกรรมใหม่จะแสดงที่นี่เมื่อ admin สร้างกิจกรรม</p>
         </div>
-        <div class="p-6">
-          <h3 class="font-bold text-primary text-xl lg:text-2xl mb-3">บริจาคอาหารสุนัข</h3>
-          <p class="text-gray-700 mb-6 leading-relaxed">
-            ร่วมกิจกรรมบริจาคอาหารให้สุนัขจรจัดและสัตว์เลี้ยงที่ต้องการความช่วยเหลือ แสดงความเมตตาต่อสัตว์
-          </p>
-          <a href="{% url 'volunteer_app:activities' %}" 
-             class="inline-flex items-center px-6 py-3 bg-blue text-white rounded-xl font-semibold hover:bg-dark-blue transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue focus:ring-opacity-50 shadow-md hover:shadow-lg"
-             aria-label="ดูรายละเอียดกิจกรรมบริจาคอาหารสุนัข">
-            ดูรายละเอียด
-            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </a>
-        </div>
-      </article>
-
-      <!-- กิจกรรม 3: บริจาคเลือด -->
-      <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover focus-within:ring-4 focus-within:ring-primary focus-within:ring-opacity-50 md:col-span-2 xl:col-span-1">
-        <div class="relative overflow-hidden">
-          <img src="https://hdmall.co.th/blog/wp-content/uploads/2024/02/%E0%B8%82%E0%B9%89%E0%B8%AD%E0%B8%84%E0%B8%A7%E0%B8%A3%E0%B8%9B%E0%B8%8F%E0%B8%B4%E0%B8%9A%E0%B8%B1%E0%B8%95%E0%B8%B4%E0%B8%81%E0%B9%88%E0%B8%AD%E0%B8%99%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%87%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%88%E0%B8%B2%E0%B8%84%E0%B9%82%E0%B8%A5%E0%B8%AB%E0%B8%B4%E0%B8%95-scaled.jpg.webp" 
-               alt="กิจกรรมบริจาคเลือด มีเจ้าหน้าที่การแพทย์และอาสาสมัครที่กำลังบริจาคเลือด" 
-               class="w-full h-56 sm:h-64 object-cover transition-transform duration-300 hover:scale-105"
-               loading="lazy">
-          <div class="absolute top-4 left-4">
-            <span class="bg-blue text-white px-3 py-1 rounded-full text-sm font-medium">สาธารณสุข</span>
-          </div>
-        </div>
-        <div class="p-6">
-          <h3 class="font-bold text-primary text-xl lg:text-2xl mb-3">บริจาคเลือด</h3>
-          <p class="text-gray-700 mb-6 leading-relaxed">
-            เข้าร่วมบริจาคเลือดเพื่อช่วยชีวิตผู้ป่วยที่ต้องการเลือด การบริจาคครั้งหนึ่งสามารถช่วยชีวิตได้ถึง 3 คน
-          </p>
-          <a href="{% url 'volunteer_app:activities' %}" 
-             class="inline-flex items-center px-6 py-3 bg-blue text-white rounded-xl font-semibold hover:bg-dark-blue transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue focus:ring-opacity-50 shadow-md hover:shadow-lg"
-             aria-label="ดูรายละเอียดกิจกรรมบริจาคเลือด">
-            ดูรายละเอียด
-            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </a>
-        </div>
-      </article>
-      
+      {% endif %}
     </div>
+  </div>
+</section>
+
+<!-- Idea Voting Highlights -->
+<section class="mb-16 px-4 sm:px-6 lg:px-8" aria-labelledby="idea-highlight">
+  <div class="max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 sm:p-10">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
+      <div>
+        <p class="text-primary font-semibold uppercase tracking-widest text-sm">Idea Voting</p>
+        <h2 id="idea-highlight" class="text-3xl sm:text-4xl font-bold text-dark-blue mt-2">
+          โหวตไอเดียกิจกรรมที่อยากเห็น
+        </h2>
+        <p class="text-gray-600 mt-3 max-w-2xl">
+          สนับสนุนไอเดียจากเพื่อนอาสาสมัคร ไอเดียที่มีคะแนนสูงจะถูกนำไปพิจารณาจัดกิจกรรมจริง
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="{% url 'volunteer_app:idea_list' %}" class="inline-flex items-center px-6 py-3 rounded-2xl bg-primary text-white font-semibold shadow-lg hover:shadow-xl transition">
+          ดูไอเดียทั้งหมด
+          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </a>
+        <a href="{% url 'volunteer_app:propose_idea' %}" class="inline-flex items-center px-6 py-3 rounded-2xl border border-primary text-primary font-semibold hover:bg-primary/10 transition">
+          ส่งไอเดียใหม่
+        </a>
+      </div>
+    </div>
+
+    {% if top_ideas %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for idea in top_ideas %}
+      <article class="rounded-2xl border border-gray-100 shadow-lg p-6 flex flex-col h-full">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <p class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
+              {{ idea.get_status_display }}
+            </p>
+            <h3 class="text-2xl font-bold text-gray-900 mt-3">{{ idea.title }}</h3>
+          </div>
+          <div class="text-center bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100">
+            <p class="text-xs text-gray-500">คะแนน</p>
+            <p class="text-3xl font-extrabold text-primary">{{ idea.vote_total }}</p>
+          </div>
+        </div>
+        <p class="text-gray-600 leading-relaxed flex-1">{{ idea.description|truncatewords:30 }}</p>
+        <div class="mt-4 text-sm text-gray-500 flex items-center flex-wrap gap-2">
+          <span>เสนอโดย</span>
+          <span class="font-semibold text-gray-800">
+            {% if idea.proposer %}
+              {{ idea.proposer.get_full_name|default:idea.proposer.username }}
+            {% else %}
+              ไม่ระบุ
+            {% endif %}
+          </span>
+          <span>•</span>
+          <span>เป้าหมาย {{ idea.target_hours }} ชั่วโมง</span>
+        </div>
+        <div class="mt-6">
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'volunteer_app:vote_idea' idea.pk %}" class="space-y-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{% if idea.user_voted %}unvote{% else %}vote{% endif %}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl font-semibold transition
+                    {% if idea.user_voted %}
+                      bg-gradient-to-r from-green-500 to-emerald-600 text-white
+                    {% else %}
+                      bg-primary text-white hover:bg-darkBlue
+                    {% endif %}">
+              {% if idea.user_voted %}
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              โหวตแล้ว - กดยกเลิก
+              {% else %}
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5v14"></path>
+              </svg>
+              โหวตสนับสนุนไอเดียนี้
+              {% endif %}
+            </button>
+          </form>
+          {% else %}
+          <a href="{% url 'volunteer_app:login' %}?next={% url 'volunteer_app:idea_list' %}"
+             class="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl border border-primary text-primary font-semibold hover:bg-primary/10 transition">
+            เข้าสู่ระบบเพื่อโหวต
+          </a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12 border-2 border-dashed border-gray-200 rounded-2xl">
+      <p class="text-lg text-gray-700 font-semibold">ยังไม่มีไอเดียที่รอการโหวต</p>
+      <p class="text-gray-500 mt-2">เป็นคนแรกที่เสนอไอเดียกิจกรรมใหม่เลย!</p>
+      <a href="{% url 'volunteer_app:propose_idea' %}" class="inline-flex items-center justify-center mt-6 px-6 py-3 rounded-xl bg-primary text-white font-semibold shadow">
+        ส่งไอเดียใหม่
+      </a>
+    </div>
+    {% endif %}
   </div>
 </section>
 

@@ -68,6 +68,7 @@
         </h1>
         <p class="mt-2 text-gray-600">ค้นหาและเข้าร่วมกิจกรรมที่น่าสนใจ</p>
       </div>
+      {% if user.is_staff or user.is_superuser %}
       <a 
         href="{% url 'volunteer_app:create_activity' %}"
         class="btn-primary text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 inline-flex items-center gap-2"
@@ -79,6 +80,7 @@
         </svg>
         สร้างกิจกรรม
       </a>
+      {% endif %}
     </div>
   </div>
 </header>
@@ -237,6 +239,24 @@
           role="listitem"
           aria-labelledby="activity-title-{{ a.id }}"
         >
+          <!-- Activity Image -->
+          {% if a.image %}
+          <div class="w-full h-48 overflow-hidden bg-gray-200">
+            <img 
+              src="{{ a.image.url }}" 
+              alt="{{ a.title }}"
+              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            >
+          </div>
+          {% else %}
+          <div class="w-full h-48 bg-gradient-to-br from-[#41A67E] to-[#1055C9] flex items-center justify-center">
+            <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          {% endif %}
+
           <!-- Card Header -->
           <div class="p-6 pb-4">
             <div class="flex items-start justify-between mb-3">
@@ -327,6 +347,74 @@
         </article>
       {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+      <nav class="mt-12 flex items-center justify-between" aria-label="pagination">
+        <div class="hidden sm:block">
+          <p class="text-sm text-gray-700">
+            แสดง <span class="font-medium">{{ activities.start_index }}</span> ถึง <span class="font-medium">{{ activities.end_index }}</span> จากทั้งหมด <span class="font-medium">{{ paginator.count }}</span> รายการ
+          </p>
+        </div>
+        <div class="flex gap-2">
+          {% if activities.has_previous %}
+            <a 
+              href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+              class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
+            >
+              <<
+            </a>
+            <a 
+              href="?page={{ activities.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+              class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
+            >
+              ← ก่อนหน้า
+            </a>
+          {% else %}
+            <button disabled class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed"><<</button>
+            <button disabled class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed">← ก่อนหน้า</button>
+          {% endif %}
+
+          <!-- Page Numbers -->
+          <div class="hidden sm:flex gap-1">
+            {% for num in paginator.page_range %}
+              {% if activities.number == num %}
+                <button disabled class="inline-flex items-center px-3 py-2 border border-[#41A67E] rounded-lg text-sm font-medium text-white bg-[#41A67E]">
+                  {{ num }}
+                </button>
+              {% elif num == 1 or num == paginator.num_pages or num >= activities.number|add:'-1' and num <= activities.number|add:'1' %}
+                <a 
+                  href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                  class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
+                >
+                  {{ num }}
+                </a>
+              {% elif num == activities.number|add:'-2' or num == activities.number|add:'2' %}
+                <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700">...</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          {% if activities.has_next %}
+            <a 
+              href="?page={{ activities.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+              class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
+            >
+              ถัดไป →
+            </a>
+            <a 
+              href="?page={{ paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+              class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all duration-200"
+            >
+              >>
+            </a>
+          {% else %}
+            <button disabled class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed">ถัดไป →</button>
+            <button disabled class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-400 bg-gray-100 cursor-not-allowed">>></button>
+          {% endif %}
+        </div>
+      </nav>
+    {% endif %}
   {% else %}
     <!-- Empty State -->
     <div class="text-center py-12" role="status" aria-live="polite">

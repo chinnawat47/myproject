@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Activity, ActivitySignup, QRScan, Vote, IdeaProposal, Group, GroupMembership, GroupPost
+from .models import (
+    User, Activity, ActivitySignup, QRScan, IdeaProposal, IdeaVote,
+    Group, GroupMembership, GroupPost, Role, Notification, NotificationPreference
+)
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -24,14 +27,14 @@ class ActivitySignupAdmin(admin.ModelAdmin):
 class QRScanAdmin(admin.ModelAdmin):
     list_display = ("activity", "user", "scanned_at", "token")
 
-@admin.register(Vote)
-class VoteAdmin(admin.ModelAdmin):
-    list_display = ("activity", "user", "voted_at")
-
 @admin.register(IdeaProposal)
 class IdeaProposalAdmin(admin.ModelAdmin):
     list_display = ("title", "proposer", "target_hours", "created_at", "reviewed")
     list_filter = ("reviewed",)
+
+@admin.register(IdeaVote)
+class IdeaVoteAdmin(admin.ModelAdmin):
+    list_display = ("idea", "user", "voted_at")
 
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
@@ -44,3 +47,22 @@ class GroupMembershipAdmin(admin.ModelAdmin):
 @admin.register(GroupPost)
 class GroupPostAdmin(admin.ModelAdmin):
     list_display = ("group", "author", "created_at")
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "display_order", "is_assignable")
+    list_editable = ("display_order", "is_assignable")
+    search_fields = ("name", "code")
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("title", "user", "category", "channel", "is_read", "created_at")
+    list_filter = ("category", "channel", "is_read")
+    search_fields = ("title", "message", "user__username")
+
+
+@admin.register(NotificationPreference)
+class NotificationPreferenceAdmin(admin.ModelAdmin):
+    list_display = ("user", "in_app_enabled", "email_enabled", "idea_updates", "activity_reminders", "hours_updates")

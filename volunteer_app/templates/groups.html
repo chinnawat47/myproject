@@ -65,11 +65,36 @@
                   </p>
                 </a>
               </div>
-              <div class="ml-4 flex-shrink-0">
-                <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors duration-150" 
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
+              <div class="ml-4 flex-shrink-0 flex flex-col items-end gap-2">
+                {% if user.is_authenticated %}
+                  {% if g.pk in user_memberships %}
+                    <span class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
+                      เป็นสมาชิกแล้ว
+                    </span>
+                  {% else %}
+                    <form method="post" action="{% url 'volunteer_app:join_group' g.pk %}" class="inline">
+                      {% csrf_token %}
+                      <button 
+                        type="submit"
+                        class="px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+                        style="background-color: #41A67E; focus:ring-color: #41A67E;"
+                        onmouseover="this.style.backgroundColor='#369268'"
+                        onmouseout="this.style.backgroundColor='#41A67E'"
+                      >
+                        เข้าร่วมกลุ่ม
+                      </button>
+                    </form>
+                  {% endif %}
+                {% endif %}
+                <a 
+                  href="{% url 'volunteer_app:group_detail' g.pk %}"
+                  class="text-gray-400 hover:text-gray-600 transition-colors duration-150"
+                  aria-label="ดูรายละเอียดกลุ่ม"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
               </div>
             </div>
           </div>

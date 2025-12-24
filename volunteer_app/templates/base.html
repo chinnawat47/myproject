@@ -40,39 +40,66 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="{% static 'volunteer_app/css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'volunteer_app/css/styles_main.css' %}">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   {% block head %}{% endblock %}
 </head>
 <body class="bg-gray-50 text-gray-800 font-thai min-h-screen flex flex-col">
 
   <!-- Navbar -->
   <nav class="bg-primary shadow-nav sticky top-0 z-50">
-    <div class="container mx-auto flex flex-wrap justify-between items-center px-4 py-3">
-      <!-- Logo -->
+    <div class="container mx-auto flex justify-between items-center px-4 py-3">
       <a href="{% url 'volunteer_app:index' %}" class="text-white font-bold text-2xl hover:text-gold transition-colors">
         Volunteer System
       </a>
 
-      <!-- Desktop Menu -->
       <div class="hidden md:flex items-center space-x-6">
         <a href="{% url 'volunteer_app:activities' %}" class="text-white hover:text-gold transition-colors">กิจกรรมทั้งหมด</a>
         <a href="{% url 'volunteer_app:groups' %}" class="text-white hover:text-gold transition-colors">กลุ่ม</a>
+        <a href="{% url 'volunteer_app:idea_list' %}" class="text-white hover:text-gold transition-colors">โหวตไอเดีย</a>
         {% if user.is_authenticated %}
-          <a href="{% url 'volunteer_app:profile' %}" class="text-white hover:text-gold transition-colors">โปรไฟล์</a>
-          <form method="POST" action="{% url 'volunteer_app:logout' %}" class="inline">
-            {% csrf_token %}
-            <button type="submit" class="text-white hover:text-gold bg-transparent border-none p-0 cursor-pointer">ออกจากระบบ</button>
-          </form>
+          <a href="{% url 'volunteer_app:notifications' %}" class="relative text-white hover:text-gold transition-colors">
+            <i class="fas fa-bell text-lg"></i>
+            {% if unread_notifications_count|default:0 > 0 %}
+              <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+        {% endif %}
+        {% if user.is_authenticated %}
+          <div class="relative group">
+            <button class="text-white hover:text-gold flex items-center gap-2">
+              <i class="fas fa-user-circle"></i>{{ user.get_short_name|default:user.username }}
+              <i class="fas fa-chevron-down text-xs"></i>
+            </button>
+            <div class="absolute right-0 mt-0 w-56 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 z-50">
+              <a href="{% url 'volunteer_app:profile' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 flex items-center gap-2">
+                <i class="fas fa-user w-4"></i>โปรไฟล์
+              </a>
+              <a href="{% url 'volunteer_app:change_password' %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 flex items-center gap-2">
+                <i class="fas fa-key w-4"></i>เปลี่ยนรหัสผ่าน
+              </a>
+              {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'volunteer_app:admin_dashboard' %}" class="block px-4 py-2 text-darkBlue hover:bg-gray-100 flex items-center gap-2 font-semibold">
+                  <i class="fas fa-cog w-4"></i>แดชบอร์ด Admin
+                </a>
+              {% endif %}
+              <form method="POST" action="{% url 'volunteer_app:logout' %}" class="block">
+                {% csrf_token %}
+                <button type="submit" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2">
+                  <i class="fas fa-sign-out-alt w-4"></i>ออกจากระบบ
+                </button>
+              </form>
+            </div>
+          </div>
         {% else %}
-          <a href="{% url 'volunteer_app:login' %}" class="text-white hover:text-gold transition-colors">เข้าสู่ระบบ</a>
-          <a href="{% url 'volunteer_app:register' %}" class="text-white hover:text-gold transition-colors">สมัครสมาชิก</a>
-          <a href="/admin/login/" class="text-white hover:text-gold transition-colors">Admin Login</a>
+          <a href="{% url 'volunteer_app:login' %}" class="text-white hover:text-gold">เข้าสู่ระบบ</a>
+          <a href="{% url 'volunteer_app:register' %}" class="text-white hover:text-gold">สมัครสมาชิก</a>
         {% endif %}
       </div>
 
       <!-- Mobile Menu Button -->
-      <button id="mobileMenuBtn" class="md:hidden text-white hover:text-gold transition-colors" aria-label="Toggle menu">
+      <button id="mobileMenuBtn" class="md:hidden text-white hover:text-gold">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
@@ -80,130 +107,104 @@
 
       <!-- Mobile Menu -->
       <div id="mobileMenu" class="md:hidden mt-3 space-y-2 hidden">
-        <a href="{% url 'volunteer_app:activities' %}" class="block text-white/90 hover:text-gold transition-colors">กิจกรรมทั้งหมด</a>
-        <a href="{% url 'volunteer_app:groups' %}" class="block text-white/90 hover:text-gold transition-colors">กลุ่ม</a>
+        <a href="{% url 'volunteer_app:activities' %}" class="block text-white/90 hover:text-gold">กิจกรรมทั้งหมด</a>
+        <a href="{% url 'volunteer_app:groups' %}" class="block text-white/90 hover:text-gold">กลุ่ม</a>
+        <a href="{% url 'volunteer_app:idea_list' %}" class="block text-white/90 hover:text-gold">โหวตไอเดีย</a>
         {% if user.is_authenticated %}
-          <a href="{% url 'volunteer_app:profile' %}" class="block text-white/90 hover:text-gold transition-colors">โปรไฟล์</a>
-          <form method="POST" action="{% url 'volunteer_app:logout' %}">
+          <a href="{% url 'volunteer_app:notifications' %}" class="block text-white/90 hover:text-gold">
+            แจ้งเตือน
+            {% if unread_notifications_count|default:0 > 0 %}
+              <span class="ml-2 inline-flex items-center justify-center text-xs bg-red-500 text-white rounded-full px-2 py-0.5">{{ unread_notifications_count }}</span>
+            {% endif %}
+          </a>
+        {% endif %}
+        {% if user.is_authenticated %}
+          <div class="border-t border-white/20 pt-2 mt-2">
+            <p class="text-white/70 text-sm mb-2">{{ user.get_full_name|default:user.username }}</p>
+            <a href="{% url 'volunteer_app:profile' %}" class="block text-white/90 hover:text-gold pl-4">โปรไฟล์</a>
+            <a href="{% url 'volunteer_app:change_password' %}" class="block text-white/90 hover:text-gold pl-4">เปลี่ยนรหัสผ่าน</a>
+            {% if user.is_staff or user.is_superuser %}
+              <a href="{% url 'volunteer_app:admin_dashboard' %}" class="block text-gold font-semibold hover:text-white pl-4 pt-2">⚙️ Admin</a>
+            {% endif %}
+          </div>
+          <form method="POST" action="{% url 'volunteer_app:logout' %}" class="border-t border-white/20 pt-2 mt-2">
             {% csrf_token %}
-            <button type="submit" class="text-left w-full text-white/90 hover:text-gold transition-colors">ออกจากระบบ</button>
+            <button type="submit" class="text-left w-full text-red-300 hover:text-red-100">ออกจากระบบ</button>
           </form>
         {% else %}
-          <a href="{% url 'volunteer_app:login' %}" class="block text-white/90 hover:text-gold transition-colors">เข้าสู่ระบบ</a>
-          <a href="{% url 'volunteer_app:register' %}" class="block text-white/90 hover:text-gold transition-colors">สมัครสมาชิก</a>
-          <a href="/admin/login/" class="block text-white/90 hover:text-gold transition-colors">Admin Login</a>
+          <a href="{% url 'volunteer_app:login' %}" class="block text-white/90 hover:text-gold">เข้าสู่ระบบ</a>
+          <a href="{% url 'volunteer_app:register' %}" class="block text-white/90 hover:text-gold">สมัครสมาชิก</a>
         {% endif %}
       </div>
     </div>
   </nav>
 
-  <!-- Main Layout -->
+  <!-- Main Content -->
   <main class="container mx-auto mt-6 px-4 flex-1">
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-      <!-- Content -->
-      <div class="lg:col-span-3 space-y-6">
-        {% block content %}{% endblock %}
-      </div>
-
-      <!-- Sidebar -->
-      <aside class="lg:col-span-1 space-y-6">
-        {% include "chatbot_widget.html" %}
-
-        <!-- Facebook Card -->
-        <div class="bg-white p-6 rounded-xl shadow-card">
-          <h3 class="font-semibold mb-4 text-darkBlue flex items-center">
-            <i class="fab fa-facebook text-blue mr-2"></i>ติดตามเรา
-          </h3>
-          <div id="fb-root"></div>
-          <div class="fb-page" data-href="https://www.facebook.com/YOUR_PAGE_URL" data-tabs="timeline" data-width="" data-height="300" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true">
-            <blockquote cite="https://www.facebook.com/YOUR_PAGE_URL" class="fb-xfbml-parse-ignore">
-              <a href="https://www.facebook.com/YOUR_PAGE_URL" class="text-blue hover:text-darkBlue transition-colors">Facebook Page</a>
-            </blockquote>
-          </div>
-          <script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v17.0"></script>
-        </div>
-
-        <!-- Quick Stats Card -->
-        <div class="bg-white p-6 rounded-xl shadow-card">
-          <h3 class="font-semibold mb-4 text-darkBlue flex items-center">
-            <i class="fas fa-chart-line mr-2 text-primary"></i>สถิติด่วน
-          </h3>
-          <div class="space-y-3">
-            <div class="flex justify-between items-center p-3 bg-primary/10 rounded-lg">
-              <span class="text-sm text-gray-600">กิจกรรมทั้งหมด</span>
-              <span class="font-bold text-primary">{{ total_activities|default:"0" }}</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-gold/10 rounded-lg">
-              <span class="text-sm text-gray-600">จิตอาสาทั้งหมด</span>
-              <span class="font-bold text-gold">{{ total_volunteers|default:"0" }}</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
+    {% block content %}{% endblock %}
   </main>
 
+  {% include "chatbot_widget.html" %}
+
+  <button id="chatbot-toggle"
+          class="fixed bottom-6 right-6 rounded-full shadow-2xl bg-gradient-to-r from-blue-600 to-primary text-white w-14 h-14 flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-blue-200 hover:scale-105 transition-transform z-40"
+          aria-label="เปิดแชทบอทช่วยเหลือ">
+    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v6"></path>
+    </svg>
+  </button>
+
   <!-- Footer -->
-  <footer class="bg-darkBlue text-white py-8 mt-12">
-    <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <h4 class="font-semibold mb-4 flex items-center">
-            <i class="fas fa-hands-helping mr-2 text-gold"></i>ระบบจิตอาสา
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed">
-            แพลตฟอร์มสำหรับการจัดการกิจกรรมจิตอาสา เพื่อสร้างสังคมที่ดีร่วมกัน
-          </p>
-        </div>
-        <div>
-          <h4 class="font-semibold mb-4">ลิงก์ด่วน</h4>
-          <ul class="space-y-2 text-sm">
-            <li><a href="{% url 'volunteer_app:activities' %}" class="text-gray-300 hover:text-gold transition-colors">กิจกรรมทั้งหมด</a></li>
-            <li><a href="{% url 'volunteer_app:groups' %}" class="text-gray-300 hover:text-gold transition-colors">กลุ่มจิตอาสา</a></li>
-            <li><a href="#" class="text-gray-300 hover:text-gold transition-colors">เกี่ยวกับเรา</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-semibold mb-4">ติดตามเรา</h4>
-          <div class="flex space-x-4 text-xl">
-            <a href="#" class="text-gray-300 hover:text-gold"><i class="fab fa-facebook"></i></a>
-            <a href="#" class="text-gray-300 hover:text-gold"><i class="fab fa-line"></i></a>
-            <a href="#" class="text-gray-300 hover:text-gold"><i class="fab fa-instagram"></i></a>
-          </div>
-        </div>
-      </div>
-      <hr class="border-gray-600 my-6">
-      <div class="text-center text-gray-400 text-sm">
-        &copy; 2024 ระบบจิตอาสา. สงวนลิขสิทธิ์.
-      </div>
-    </div>
+  <footer class="bg-darkBlue py-6 mt-12">
+    <!-- สงวนพื้นที่ footer ไม่มีข้อความหรือไอคอน -->
   </footer>
 
-  <!-- Mobile menu toggle script -->
+  <!-- Mobile menu toggle -->
   <script>
     const btn = document.getElementById('mobileMenuBtn');
     const menu = document.getElementById('mobileMenu');
-
-    btn.addEventListener('click', () => {
-      menu.classList.toggle('hidden');
-    });
+    btn.addEventListener('click', () => menu.classList.toggle('hidden'));
   </script>
 
+  <!-- Custom JS -->
+  <script src="{% static 'volunteer_app/js/qr_scanner_main.js' %}"></script>
+  <script>
+    const chatbotToggle = document.getElementById("chatbot-toggle");
+    const chatbotPanel = document.getElementById("chatbot-panel");
+    const chatbotClose = document.getElementById("chatbot-close");
+
+    function toggleChatbot(show) {
+      if (!chatbotPanel) return;
+      const shouldShow = typeof show === "boolean" ? show : chatbotPanel.classList.contains("hidden");
+      if (shouldShow) {
+        chatbotPanel.classList.remove("hidden", "opacity-0", "translate-y-4");
+      } else {
+        chatbotPanel.classList.add("opacity-0", "translate-y-4");
+        setTimeout(() => chatbotPanel.classList.add("hidden"), 200);
+      }
+    }
+
+    if (chatbotToggle && chatbotPanel) {
+      chatbotToggle.addEventListener("click", () => toggleChatbot());
+    }
+    if (chatbotClose && chatbotPanel) {
+      chatbotClose.addEventListener("click", () => toggleChatbot(false));
+    }
+
+    // เปิด chatbot ให้ผู้ใช้เห็นอย่างน้อยครั้งแรก
+    const CHATBOT_SESSION_KEY = "volunteer_chatbot_seen";
+    try {
+      const hasSeen = sessionStorage.getItem(CHATBOT_SESSION_KEY);
+      if (!hasSeen && chatbotPanel) {
+        setTimeout(() => toggleChatbot(true), 600);
+        sessionStorage.setItem(CHATBOT_SESSION_KEY, "1");
+      }
+    } catch (err) {
+      // sessionStorage อาจไม่พร้อมใช้งาน (โหมด private) จึงข้ามไป
+      console.warn("Chatbot session storage unavailable:", err);
+    }
+  </script>
   {% block scripts %}{% endblock %}
-
-  <style>
-    /* Custom scrollbar for chat output */
-    #chat-output::-webkit-scrollbar { width: 8px; }
-    #chat-output::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 4px; }
-    #chat-output::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-
-    /* Hover underline for links */
-    a:hover { text-decoration: underline; }
-
-    /* Card hover effect */
-    .shadow-card:hover { transform: translateY(-2px); transition: all 0.3s ease; }
-  </style>
 
 </body>
 </html>
