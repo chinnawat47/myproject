@@ -51,7 +51,10 @@
 {% endblock %}
 
 {% block content %}
-<main class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-6 lg:px-8">
+<main class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-6 lg:px-8"
+      data-qr-scan-page
+      data-verify-url="{% url 'volunteer_app:qr_verify' %}"
+      data-upload-url="{% url 'volunteer_app:qr_upload' %}">
   <div class="max-w-2xl mx-auto">
     <!-- Header Section -->
     <div class="text-center mb-8">
@@ -112,21 +115,47 @@
             <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
               <span class="text-sm font-semibold text-blue-600">1</span>
             </div>
-            <p class="text-sm text-blue-800">อนุญาตการใช้กล้อง</p>
+            <div>
+              <p class="text-sm text-blue-800 font-medium">อนุญาตการใช้กล้อง</p>
+              <p class="text-xs text-blue-600 mt-1">คลิก "อนุญาต" เมื่อเบราว์เซอร์ถาม</p>
+            </div>
           </div>
           
           <div class="flex items-center p-3 bg-emerald-50 rounded-lg">
             <div class="flex-shrink-0 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
               <span class="text-sm font-semibold text-emerald-600">2</span>
             </div>
-            <p class="text-sm text-emerald-800">วาง QR Code ให้ตรง</p>
+            <div>
+              <p class="text-sm text-emerald-800 font-medium">วาง QR Code ให้ตรง</p>
+              <p class="text-xs text-emerald-600 mt-1">ให้ QR Code อยู่ในกรอบสแกน</p>
+            </div>
           </div>
           
           <div class="flex items-center p-3 bg-amber-50 rounded-lg">
             <div class="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center mr-3">
               <span class="text-sm font-semibold text-amber-600">3</span>
             </div>
-            <p class="text-sm text-amber-800">รอการยืนยันผลลัพธ์</p>
+            <div>
+              <p class="text-sm text-amber-800 font-medium">รอการยืนยันผลลัพธ์</p>
+              <p class="text-xs text-amber-600 mt-1">ระบบจะแสดงผลลัพธ์อัตโนมัติ</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Mobile-specific tips -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div class="flex items-start">
+            <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-blue-900 mb-1">💡 สำหรับมือถือ:</p>
+              <ul class="text-xs text-blue-800 space-y-1">
+                <li>• ต้องใช้ HTTPS (https://) เพื่อเข้าถึงกล้อง</li>
+                <li>• อนุญาตให้เว็บไซต์ใช้กล้องเมื่อเบราว์เซอร์ถาม</li>
+                <li>• ถ้าสแกนไม่ได้ สามารถใช้ฟอร์มกรอกโทเค็นด้านล่างแทน</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -202,6 +231,45 @@
       </div>
     </div>
 
+      <!-- Upload QR Code Image -->
+      <div class="mt-6 mb-6">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            อัปโหลดรูปภาพ QR Code
+          </h3>
+          <p class="text-sm text-gray-600 mb-4">อัปโหลดรูปภาพ QR code เพื่อยืนยันชั่วโมงจิตอาสา</p>
+          <form id="qr-upload-form" enctype="multipart/form-data" class="space-y-4">
+            <div class="flex items-center justify-center w-full">
+              <label for="qr-image-input" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">คลิกเพื่อเลือกรูปภาพ</span> หรือลากวางที่นี่</p>
+                  <p class="text-xs text-gray-500">PNG, JPG, GIF หรือ WEBP (ขนาดไม่เกิน 10MB)</p>
+                </div>
+                <input id="qr-image-input" name="image" type="file" accept="image/*" class="hidden" />
+              </label>
+            </div>
+            <div id="image-preview" class="hidden">
+              <img id="preview-img" src="" alt="QR Code Preview" class="max-w-full h-auto rounded-lg border border-gray-300 mx-auto max-h-64" />
+              <button type="button" id="remove-image-btn" class="mt-2 text-sm text-red-600 hover:text-red-800">ลบรูปภาพ</button>
+            </div>
+            <button id="qr-upload-submit" type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 px-4 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+              <span class="flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                อัปโหลดและยืนยัน
+              </span>
+            </button>
+          </form>
+        </div>
+      </div>
+
       <!-- Manual Token Entry (fallback) -->
       <div class="mt-6 mb-6">
         <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -269,156 +337,6 @@
 </main>
 
 <script src="{% static 'volunteer_app/js/qr_scanner_main.js' %}"></script>
-<script>
-  // initialize with endpoint URL
-  initQrScanner("{% url 'volunteer_app:qr_verify' %}");
-</script>
-<script>
-  // Manual token form handler with enhanced UX
-  (function(){
-    const form = document.getElementById('manual-token-form');
-    if(!form) return;
-    const input = document.getElementById('manual-token-input');
-    const submitBtn = document.getElementById('manual-token-submit');
-    const resultDiv = document.getElementById('qr-result');
-    const activityDetailsDiv = document.getElementById('activity-details');
-    const errorHelpDiv = document.getElementById('error-help');
-    const verifyUrl = "{% url 'volunteer_app:qr_verify' %}";
-
-    // Friendly error messages mapping
-    const errorMessages = {
-      'no_token': 'โปรดกรอกหรือสแกน QR code ก่อน',
-      'invalid_token': 'โทเค็นไม่ถูกต้องหรือหมดอายุแล้ว',
-      'activity_not_found': 'ไม่พบกิจกรรมนี้ในระบบ',
-      'not_signed_up': 'คุณยังไม่ได้สมัครกิจกรรมนี้',
-      'already_attended': 'คุณยืนยันชั่วโมงกิจกรรมนี้แล้ว',
-      'database_error': 'เกิดข้อผิดพลาดในการบันทึก ลองอีกครั้ง',
-      'unknown': 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ'
-    };
-
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
-
-    function showLoading() {
-      resultDiv.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full">
-          <div class="mb-4">
-            <div class="inline-block">
-              <svg class="animate-spin h-12 w-12 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </div>
-          </div>
-          <p class="text-gray-600 font-medium">กำลังยืนยัน...</p>
-        </div>
-      `;
-      activityDetailsDiv.classList.add('hidden');
-      errorHelpDiv.classList.add('hidden');
-      submitBtn.disabled = true;
-    }
-
-    function showSuccess(data) {
-      resultDiv.classList.add('hidden');
-      activityDetailsDiv.classList.remove('hidden');
-      errorHelpDiv.classList.add('hidden');
-      
-      if (data.activity) {
-        document.getElementById('activity-title').textContent = data.activity.title;
-        document.getElementById('activity-datetime').innerHTML = `
-          <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-          ${data.activity.datetime}
-        `;
-        document.getElementById('activity-location').innerHTML = `
-          <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-          ${data.activity.location || 'ไม่ระบุ'}
-        `;
-      }
-      document.getElementById('activity-hours').textContent = data.hours_reward || 0;
-      
-      submitBtn.disabled = false;
-    }
-
-    function showError(data) {
-      resultDiv.classList.add('hidden');
-      activityDetailsDiv.classList.add('hidden');
-      errorHelpDiv.classList.remove('hidden');
-      
-      const errorMsg = data.message || errorMessages[data.code] || errorMessages['unknown'];
-      const helpText = data.help || 'กรุณาลองใหม่หรือติดต่อผู้ดูแลระบบ';
-      
-      document.getElementById('error-message').textContent = errorMsg;
-      document.getElementById('error-help-text').textContent = helpText;
-      
-      submitBtn.disabled = false;
-    }
-
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      let token = input.value.trim();
-      if(!token){ 
-        showError({ code: 'no_token', message: 'กรุณากรอกหรือสแกน QR code' });
-        return; 
-      }
-      
-      // Try to extract token from URL
-      try{
-        const u = new URL(token);
-        token = u.pathname.split('/').filter(Boolean).pop();
-      }catch(err){}
-
-      showLoading();
-      
-      fetch(verifyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: new URLSearchParams({ token: token })
-      }).then(r => r.json()).then(data => {
-        if(data.ok){ 
-          showSuccess(data);
-        } else { 
-          showError(data);
-        }
-      }).catch(err => {
-        showError({ 
-          code: 'network_error',
-          message: 'เกิดข้อผิดพลาดในการติดต่อเซิร์ฟเวอร์',
-          help: 'กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต'
-        });
-      });
-    });
-
-    // Retry button
-    document.getElementById('retry-btn').addEventListener('click', function(){
-      input.value = '';
-      input.focus();
-      resultDiv.classList.remove('hidden');
-      activityDetailsDiv.classList.add('hidden');
-      errorHelpDiv.classList.add('hidden');
-    });
-
-    // Contact admin button
-    document.getElementById('contact-admin-btn').addEventListener('click', function(){
-      const subject = 'ปัญหาการยืนยันกิจกรรม';
-      const body = `ดูเหมือนว่าฉันมีปัญหาในการยืนยันกิจกรรม: ${document.getElementById('error-message').textContent}`;
-      window.location.href = `mailto:admin@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    });
-  })();
-</script>
+<script src="{% static 'volunteer_app/js/qr_scan_page.js' %}"></script>
 {% endblock %}
 

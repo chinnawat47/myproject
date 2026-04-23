@@ -4,7 +4,7 @@ from django.utils import timezone
 import uuid, secrets
 from decimal import Decimal
 
-from .utils import make_qr_token
+from .utils import make_qr_token, make_checkin_token, make_checkout_token
 
 def activity_image_path(instance, filename):
     return f"activities/{instance.id}/{filename}"
@@ -17,9 +17,27 @@ class User(AbstractUser):
     year = models.PositiveSmallIntegerField(null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     roles = models.ManyToManyField("Role", blank=True, related_name="users")
+    email_verified = models.BooleanField(default=False)
+    email_verified_at = models.DateTimeField(null=True, blank=True)
 
     def total_hours(self):
-        return sum(scan.activity.hours_reward for scan in self.qr_scans.all())
+        """Calculate total volunteer hours from both QRScan (legacy) and CheckInOut (new)."""
+        # Legacy: hours from QRScan (uses activity.hours_reward)
+        qr_scan_hours = sum(scan.activity.hours_reward for scan in self.qr_scans.all())
+        
+        # New: hours from CheckInOut (uses calculated_hours from actual time worked)
+        # Only count check-out records that have calculated_hours
+        # Check if CheckInOut table exists (for migration compatibility)
+        try:
+            checkout_hours = sum(
+                float(checkout.calculated_hours) 
+                for checkout in self.check_ins_outs.filter(check_type="checkout", calculated_hours__isnull=False)
+            )
+        except Exception:
+            # Table doesn't exist yet (during migration) or other error
+            checkout_hours = 0
+        
+        return qr_scan_hours + checkout_hours
 
     def has_role(self, *codes):
         """Return True if user is assigned to any of the provided role codes."""
@@ -104,6 +122,18 @@ class Activity(models.Model):
         if not self.pk:
             return None
         return make_qr_token(self.pk)
+    
+    def checkin_token(self):
+        """Generate check-in token (expires in 5 minutes)."""
+        if not self.pk:
+            return None
+        return make_checkin_token(self.pk, expires_in=300)
+    
+    def checkout_token(self):
+        """Generate check-out token (expires in 5 minutes)."""
+        if not self.pk:
+            return None
+        return make_checkout_token(self.pk, expires_in=300)
 
     def __str__(self):
         return self.title
@@ -142,6 +172,42 @@ class QRScan(models.Model):
 
     class Meta:
         unique_together = ("activity", "user")
+
+
+# -------------------- CHECK-IN / CHECK-OUT --------------------
+class CheckInOut(models.Model):
+    """Track check-in and check-out times for activities to calculate actual volunteer hours."""
+    
+    TYPE_CHOICES = [
+        ("checkin", "Check-in"),
+        ("checkout", "Check-out"),
+    ]
+    
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="check_ins_outs")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="check_ins_outs")
+    check_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    checked_at = models.DateTimeField(auto_now_add=True)
+    token = models.CharField(max_length=200)
+    
+    # Calculated hours (only set when check-out is completed)
+    calculated_hours = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    
+    # audit fields
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=512, blank=True)
+    device_id = models.CharField(max_length=128, null=True, blank=True)
+    
+    class Meta:
+        unique_together = [
+            ("activity", "user", "check_type"),  # 1 check-in และ 1 check-out ต่อ user ต่อ activity
+        ]
+        ordering = ["-checked_at"]
+        indexes = [
+            models.Index(fields=["activity", "user", "check_type"]),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.activity.title} - {self.get_check_type_display()} at {self.checked_at}"
 
 # -------------------- IDEA --------------------
 class IdeaProposal(models.Model):

@@ -153,6 +153,7 @@ function initChatbot(apiUrl){
   });
 
   function getCookie(name) {
+    // วิธีที่ 1: อ่านจาก cookie (รองรับ Safari และทุก browser)
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
       const cookies = document.cookie.split(';');
@@ -164,6 +165,23 @@ function initChatbot(apiUrl){
         }
       }
     }
+    
+    // วิธีที่ 2: Fallback - อ่านจาก meta tag (สำหรับกรณีที่ cookie ไม่ทำงานใน Safari)
+    if (!cookieValue && name === 'csrftoken') {
+      const metaTag = document.querySelector('meta[name="csrf-token"]');
+      if (metaTag) {
+        cookieValue = metaTag.getAttribute('content');
+      }
+    }
+    
+    // วิธีที่ 3: Fallback - อ่านจาก hidden input (Django csrf_token)
+    if (!cookieValue && name === 'csrftoken') {
+      const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+      if (csrfInput) {
+        cookieValue = csrfInput.value;
+      }
+    }
+    
     return cookieValue;
   }
 }

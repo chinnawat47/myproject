@@ -1,103 +1,156 @@
-# Volunteer System (Django)
+# ระบบจัดการอาสาสมัคร มหาวิทยาลัยอุบลราชธานี
 
-A demo Django 5+ project implementing a volunteer-hour system with QR confirmation, registration restricted to `@ubu.ac.th`, activity signups, groups, voting, and a simple chatbot.
+แพลตฟอร์มจัดการอาสาสมัครที่ใช้ Django 5.0 สำหรับมหาวิทยาลัยอุบลราชธานี (โดเมน `@ubu.ac.th`) ระบบนี้จัดการกิจกรรมอาสาสมัคร การลงทะเบียนผู้ใช้ การยืนยันการเข้าร่วมด้วย QR โค้ด กลุ่ม ไอเดียการเสนอ และการลงคะแนน
 
----
+## คุณสมบัติหลัก
 
-## Key Features
+- **การจัดการกิจกรรม**: สร้างและจัดการกิจกรรมอาสาสมัครที่มีขีดจำกัดจำนวนผู้เข้าร่วมและชั่วโมงรางวัล
+- **การลงทะเบียนผู้ใช้**: จำกัดเฉพาะอีเมลมหาวิทยาลัย (`@ubu.ac.th`) พร้อมการตรวจสอบอีเมล
+- **การเข้าร่วมด้วย QR**: กระบวนการสองขั้นตอนสำหรับการยืนยันการเข้าร่วมโดยใช้ QR โค้ดและการติดตามชั่วโมงอาสาสมัคร
+- **การประสานงานกลุ่ม**: การสร้างกลุ่มที่ปลอดภัยด้วยรหัสเชิญและโพสต์กลุ่ม
+- **ไอเดียการเสนอ**: ไอเดียกิจกรรมที่ขับเคลื่อนโดยชุมชนพร้อมระบบการลงคะแนน
+- **แดชบอร์ดผู้ดูแล**: อินเทอร์เฟซผู้ดูแลแบบกำหนดเองสำหรับจัดการกิจกรรม ผู้ใช้ และไอเดีย
+- **UI ที่ตอบสนอง**: สร้างด้วย Tailwind CSS สำหรับการออกแบบที่ทันสมัยและรองรับมือถือ
 
-- Volunteer activity listings with signup, QR confirmation, and pagination
-- Idea proposal center with community voting (`/ideas/`) powered by the new `IdeaVote` model
-- Custom admin dashboard for activities, ideas, and users
-- Floating chatbot widget that answers FAQs and is accessible on every page
-- Group management with invite codes and group posts
+## ข้อกำหนด
 
----
-
-## Requirements
-
-- Python 3.10+ recommended
+- Python 3.10+
 - pip
-- Node.js + npm (for Tailwind CSS)
-- Git (optional, for version control)
+- Node.js + npm (สำหรับการคอมไพล์ Tailwind CSS)
+- Git (ไม่บังคับ สำหรับการควบคุมเวอร์ชัน)
 
----
+## ไลบรารีที่ใช้
 
-## Setup (local)
+- Django 5.0.6
+- django-tailwind
+- django-crispy-forms
+- crispy-tailwind
+- Pillow
+- qrcode
+- opencv-python
+- django-allauth (กำหนดค่าแล้วแต่ไม่ได้รวมอย่างเต็มรูปแบบ)
+- channels (พร้อมใช้งานสำหรับฟีเจอร์ WebSocket)
+- djangorestframework (พร้อมใช้งานสำหรับการพัฒนา API)
 
-1. Clone or copy project files into `volunteer_system/` directory.
+## การตั้งค่า (การพัฒนาในเครื่อง)
 
-```bash
-git clone https://github.com/chinnawat47/myproject.git
-cd myproject
+1. โคลนที่เก็บ:
+   ```bash
+   git clone <repository-url>
+   cd myproject
+   ```
 
-## Create a virtual environment and activate it:
+2. สร้างและเปิดใช้งานสภาพแวดล้อมเสมือน:
+   ```bash
+   python -m venv .venv
+   # Windows
+   .venv\Scripts\activate
+   # macOS/Linux
+   source .venv/bin/activate
+   ```
 
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
+3. ติดตั้งไลบรารี Python:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Install Python dependencies:
+4. ติดตั้งและสร้าง Tailwind CSS:
+   ```bash
+   python manage.py tailwind install
+   python manage.py tailwind build
+   ```
 
-pip install -r requirements.txt
+5. ใช้การโยกย้ายฐานข้อมูล:
+   ```bash
+   python manage.py migrate
+   ```
 
-## Install Tailwind dependencies and build CSS:
+6. (ไม่บังคับ) สร้างผู้ใช้ระดับสูงสุดสำหรับการเข้าถึงผู้ดูแล:
+   ```bash
+   python manage.py createsuperuser
+   ```
 
-python manage.py tailwind install
-python manage.py tailwind build
+7. เรียกใช้เซิร์ฟเวอร์การพัฒนา:
+   ```bash
+   python manage.py runserver
+   ```
 
+8. เข้าถึงแอปพลิเคชันที่ `http://127.0.0.1:8000/`
 
-## Apply database migrations:
+## โครงสร้างโปรเจกต์
 
-python manage.py migrate
-python manage.py makemigrations
+```
+myproject/
+├── volunteer_system/          # การตั้งค่าโปรเจกต์ Django
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── volunteer_app/             # แอป Django หลัก
+│   ├── models.py              # โมเดลข้อมูล (User, Activity, Group, etc.)
+│   ├── views.py               # ฟังก์ชันและคลาส view
+│   ├── forms.py               # ฟอร์ม Django พร้อมการตรวจสอบ
+│   ├── urls.py                # การกำหนดเส้นทาง URL
+│   ├── admin.py               # การกำหนดค่า Django admin
+│   ├── templates/             # เทมเพลต HTML
+│   ├── static/                # ไฟล์ static (CSS, JS)
+│   └── migrations/            # การโยกย้ายฐานข้อมูล
+├── theme/                     # การกำหนดค่า Tailwind CSS
+│   ├── tailwind.config.js
+│   ├── static_src/
+│   └── static/
+├── media/                     # ไฟล์ที่ผู้ใช้อัปโหลด
+├── staticfiles/               # ไฟล์ static ที่รวบรวมแล้ว
+├── management/commands/       # คำสั่งจัดการแบบกำหนดเอง
+├── requirements.txt           # ไลบรารี Python
+├── manage.py                  # สคริปต์จัดการ Django
+└── README.md                  # ไฟล์นี้
+```
 
+## การใช้งาน
 
+### การลงทะเบียนผู้ใช้
+- ผู้ใช้ต้องลงทะเบียนด้วยอีเมล `@ubu.ac.th` ที่ถูกต้อง
+- การตรวจสอบอีเมลจะถูกบังคับใช้ในฟอร์มการลงทะเบียน
 
-## (Optional) Create superuser for admin access:
+### การเข้าร่วมกิจกรรม
+1. เรียกดูกิจกรรมที่มีอยู่
+2. ลงทะเบียนเข้าร่วมกิจกรรม
+3. สแกน QR โค้ดที่งานเพื่อยืนยันการเข้าร่วม
+4. ได้รับชั่วโมงอาสาสมัครหลังจากยืนยันสำเร็จ
 
-python manage.py createsuperuser
+### การจัดการกลุ่ม
+- สร้างกลุ่มด้วยรหัสเชิญที่ปลอดภัย
+- แชร์รหัสกับผู้ใช้อื่นเพื่อเข้าร่วมกลุ่ม
+- โพสต์และสนทนาภายในกลุ่ม
 
+### ไอเดียการเสนอ
+- ส่งไอเดียกิจกรรมสำหรับการพิจารณาของชุมชน
+- ลงคะแนนสำหรับไอเดียที่เสนอ
+- ผู้ดูแลตรวจสอบและอาจสร้างกิจกรรมจากไอเดียที่ได้รับความนิยม
 
-## Run the local development server:
+### คุณสมบัติผู้ดูแล
+- แดชบอร์ดผู้ดูแลแบบกำหนดเองที่ `/admin_dashboard/`
+- จัดการกิจกรรม ผู้ใช้ และไอเดีย
+- ดูชั่วโมงอาสาสมัครของผู้ใช้
+- แทนที่การสแกน QR หากจำเป็น
 
-python manage.py runserver
+## บันทึกการพัฒนา
 
+- **ข้อจำกัดโดเมนอีเมล**: การลงทะเบียนจำกัดเฉพาะอีเมล `@ubu.ac.th` ผ่านการตรวจสอบ regex ใน `forms.py`
+- **การสร้างโทเค็น QR**: ใช้ UUID5 สำหรับโทเค็น QR ที่กำหนดได้ตาม ID กิจกรรม
+- **ชั่วโมงอาสาสมัคร**: คำนวณจาก QR สแกนที่ยืนยันแล้วด้วยชั่วโมงรางวัลกิจกรรม
+- **Frontend**: Tailwind CSS พร้อมโทนสีแบบกำหนดเอง (primary: #41A67E, etc.)
+- **ฐานข้อมูล**: SQLite สำหรับการพัฒนา สามารถกำหนดค่าได้สำหรับการใช้งานจริง
 
+## การมีส่วนร่วม
 
-## Project Structure
+1. Fork ที่เก็บ
+2. สร้างสาขาฟีเจอร์
+3. ทำการเปลี่ยนแปลงของคุณ
+4. เพิ่มการทดสอบหากเกี่ยวข้อง
+5. ส่ง pull request
 
-volunteer_system/
-│
-├── accounts/            # User registration and authentication
-├── volunteer/           # Volunteer activities and groups
-├── templates/           # HTML templates
-├── static/              # CSS, JS, images
-├── manage.py
-└── requirements.txt
+## ใบอนุญาต
 
-
-
-## คำอธิบายโครงสร้าง
-
-accounts/: แอปที่จัดการผู้ใช้ เช่น การลงทะเบียน, การเข้าสู่ระบบ, และการจัดการโปรไฟล์
-
-volunteer/: แอปที่จัดการกิจกรรมจิตอาสา เช่น การสร้างกิจกรรม, การสมัครเข้าร่วม, และการแสดงผลกิจกรรม
-
-config/: โฟลเดอร์ที่เก็บการตั้งค่าหลักของโปรเจกต์ เช่น การตั้งค่า Django, URL routing, และ WSGI/ASGI
-
-manage.py: สคริปต์หลักที่ใช้สำหรับการจัดการโปรเจกต์ Django
-
-requirements.txt: รายการของ Python packages ที่โปรเจกต์ต้องการ
-
-tailwind.config.js: การตั้งค่าของ Tailwind CSS
-
-package.json: รายการของ Node.js packages ที่โปรเจกต์ต้องการ
-
-.gitignore: ไฟล์ที่ระบุว่า Git จะไม่ติดตามไฟล์หรือโฟลเดอร์ใดบ้าง
-
-README.md: เอกสารที่อธิบายเกี่ยวกับโปรเจกต์ เช่น วิธีการติดตั้ง, การใช้งาน, และการตั้งค่า
-
-static/: โฟลเดอร์ที่เก็บไฟล์ static เช่น CSS, JavaScript, และรูปภาพ
+โปรเจกต์นี้ใช้สำหรับวัตถุประสงค์ทางการศึกษา โปรดตรวจสอบกับมหาวิทยาลัยอุบลราชธานีสำหรับสิทธิ์การใช้งาน

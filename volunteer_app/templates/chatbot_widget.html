@@ -186,45 +186,70 @@
 
 <script src="{% static 'volunteer_app/js/chatbot_app.js' %}"></script>
 <script>
-  initChatbot("{% url 'volunteer_app:chatbot_api' %}");
-  
-  // Quick question function
-  function quickQuestion(question) {
-    const input = document.getElementById('chat-input');
-    const send = document.getElementById('chat-send');
-    input.value = question;
-    input.focus();
-    // Trigger input event to update counter
-    input.dispatchEvent(new Event('input'));
-    // Small delay for better UX
-    setTimeout(() => {
-      send.click();
-    }, 100);
-  }
-  
-  // Character counter with better styling
-  document.getElementById('chat-input').addEventListener('input', function() {
-    const counter = document.getElementById('char-counter');
-    const length = this.value.length;
-    counter.textContent = `${length}/500`;
+  // รอให้ DOM พร้อมก่อนทำงาน
+  function initChatbotFunctions() {
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    const charCounter = document.getElementById('char-counter');
     
-    if (length > 450) {
-      counter.style.color = '#ef4444';
-      counter.style.fontWeight = 'bold';
-    } else if (length > 400) {
-      counter.style.color = '#f59e0b';
-      counter.style.fontWeight = 'semibold';
-    } else {
-      counter.style.color = '#9ca3af';
-      counter.style.fontWeight = 'normal';
+    if (!chatInput || !chatSend) {
+      console.warn('Chatbot input elements not found, retrying...');
+      setTimeout(initChatbotFunctions, 100);
+      return;
     }
-  });
-  
-  // Auto-resize input (if needed for future multi-line support)
-  document.getElementById('chat-input').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = this.scrollHeight + 'px';
-  });
+
+    // Initialize chatbot
+    initChatbot("{% url 'volunteer_app:chatbot_api' %}");
+    
+    // Quick question function
+    window.quickQuestion = function(question) {
+      const input = document.getElementById('chat-input');
+      const send = document.getElementById('chat-send');
+      if (input && send) {
+        input.value = question;
+        input.focus();
+        // Trigger input event to update counter
+        input.dispatchEvent(new Event('input'));
+        // Small delay for better UX
+        setTimeout(() => {
+          send.click();
+        }, 100);
+      }
+    };
+    
+    // Character counter with better styling
+    if (chatInput && charCounter) {
+      chatInput.addEventListener('input', function() {
+        const length = this.value.length;
+        charCounter.textContent = `${length}/500`;
+        
+        if (length > 450) {
+          charCounter.style.color = '#ef4444';
+          charCounter.style.fontWeight = 'bold';
+        } else if (length > 400) {
+          charCounter.style.color = '#f59e0b';
+          charCounter.style.fontWeight = 'semibold';
+        } else {
+          charCounter.style.color = '#9ca3af';
+          charCounter.style.fontWeight = 'normal';
+        }
+      });
+      
+      // Auto-resize input (if needed for future multi-line support)
+      chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+      });
+    }
+  }
+
+  // รอให้ DOM พร้อม
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChatbotFunctions);
+  } else {
+    // DOM พร้อมแล้ว แต่รอสักครู่เพื่อให้แน่ใจว่า elements ถูกสร้างแล้ว
+    setTimeout(initChatbotFunctions, 100);
+  }
 </script>
 
 <style>

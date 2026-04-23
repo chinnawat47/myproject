@@ -42,6 +42,29 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'volunteer_app/css/styles_main.css' %}">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Chatbot Widget Styles -->
+  <style>
+    #chatbot-toggle {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 9999 !important;
+    }
+    {% if user.is_authenticated and not is_admin_page|default:False %}
+    #chatbot-toggle {
+      display: flex !important;
+    }
+    {% else %}
+    #chatbot-toggle {
+      display: none !important;
+    }
+    {% endif %}
+  </style>
+
+  <!-- CSRF Token for JavaScript -->
+  {% csrf_token %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
 
   {% block head %}{% endblock %}
 </head>
@@ -144,15 +167,20 @@
     {% block content %}{% endblock %}
   </main>
 
-  {% include "chatbot_widget.html" %}
+  {% if user.is_authenticated and not is_admin_page|default:False %}
+    <!-- Chatbot Widget - แสดงในทุกหน้าสำหรับผู้ใช้ที่ login แล้ว -->
+    {% include "chatbot_widget.html" %}
 
-  <button id="chatbot-toggle"
-          class="fixed bottom-6 right-6 rounded-full shadow-2xl bg-gradient-to-r from-blue-600 to-primary text-white w-14 h-14 flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-blue-200 hover:scale-105 transition-transform z-40"
-          aria-label="เปิดแชทบอทช่วยเหลือ">
-    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v6"></path>
-    </svg>
-  </button>
+    <!-- Chatbot Toggle Button - แสดงในทุกหน้าสำหรับผู้ใช้ที่ login แล้ว -->
+    <button id="chatbot-toggle"
+            class="fixed bottom-6 right-6 rounded-full shadow-2xl bg-gradient-to-r from-blue-600 to-primary text-white w-14 h-14 flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-blue-200 hover:scale-105 transition-transform z-50"
+            style="display: flex !important; visibility: visible !important; opacity: 1 !important;"
+            aria-label="เปิดแชทบอทช่วยเหลือ">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v6"></path>
+      </svg>
+    </button>
+  {% endif %}
 
   <!-- Footer -->
   <footer class="bg-darkBlue py-6 mt-12">
@@ -167,42 +195,138 @@
   </script>
 
   <!-- Custom JS -->
-  <script src="{% static 'volunteer_app/js/qr_scanner_main.js' %}"></script>
+  <!-- Note: qr_scanner_main.js is loaded only on QR scan page -->
   <script>
-    const chatbotToggle = document.getElementById("chatbot-toggle");
-    const chatbotPanel = document.getElementById("chatbot-panel");
-    const chatbotClose = document.getElementById("chatbot-close");
+    // ฟังก์ชันสำหรับจัดการ chatbot
+    function initChatbotWidget() {
+      const chatbotToggle = document.getElementById("chatbot-toggle");
+      const chatbotPanel = document.getElementById("chatbot-panel");
+      const chatbotClose = document.getElementById("chatbot-close");
 
-    function toggleChatbot(show) {
-      if (!chatbotPanel) return;
-      const shouldShow = typeof show === "boolean" ? show : chatbotPanel.classList.contains("hidden");
-      if (shouldShow) {
-        chatbotPanel.classList.remove("hidden", "opacity-0", "translate-y-4");
-      } else {
-        chatbotPanel.classList.add("opacity-0", "translate-y-4");
-        setTimeout(() => chatbotPanel.classList.add("hidden"), 200);
+      console.log('Initializing chatbot widget...', {
+        toggle: !!chatbotToggle,
+        panel: !!chatbotPanel,
+        close: !!chatbotClose
+      });
+
+      if (!chatbotToggle || !chatbotPanel) {
+        console.warn('Chatbot elements not found');
+        return;
       }
-    }
 
-    if (chatbotToggle && chatbotPanel) {
-      chatbotToggle.addEventListener("click", () => toggleChatbot());
-    }
-    if (chatbotClose && chatbotPanel) {
-      chatbotClose.addEventListener("click", () => toggleChatbot(false));
-    }
-
-    // เปิด chatbot ให้ผู้ใช้เห็นอย่างน้อยครั้งแรก
-    const CHATBOT_SESSION_KEY = "volunteer_chatbot_seen";
-    try {
-      const hasSeen = sessionStorage.getItem(CHATBOT_SESSION_KEY);
-      if (!hasSeen && chatbotPanel) {
-        setTimeout(() => toggleChatbot(true), 600);
-        sessionStorage.setItem(CHATBOT_SESSION_KEY, "1");
+      function toggleChatbot(show) {
+        if (!chatbotPanel) return;
+        const shouldShow = typeof show === "boolean" ? show : chatbotPanel.classList.contains("hidden");
+        if (shouldShow) {
+          chatbotPanel.classList.remove("hidden", "opacity-0", "translate-y-4");
+          console.log('Chatbot panel shown');
+        } else {
+          chatbotPanel.classList.add("opacity-0", "translate-y-4");
+          setTimeout(() => chatbotPanel.classList.add("hidden"), 200);
+          console.log('Chatbot panel hidden');
+        }
       }
-    } catch (err) {
-      // sessionStorage อาจไม่พร้อมใช้งาน (โหมด private) จึงข้ามไป
-      console.warn("Chatbot session storage unavailable:", err);
+
+      // Event listeners
+      chatbotToggle.addEventListener("click", () => {
+        console.log('Toggle button clicked');
+        toggleChatbot();
+      });
+
+      if (chatbotClose) {
+        chatbotClose.addEventListener("click", () => {
+          console.log('Close button clicked');
+          toggleChatbot(false);
+        });
+      }
+
+      // เปิด chatbot ให้ผู้ใช้เห็นอย่างน้อยครั้งแรก (เฉพาะเมื่อ login แล้ว)
+      {% if user.is_authenticated %}
+      // แสดงปุ่ม toggle ทันทีเมื่อ login แล้ว - สำหรับทุกหน้า (User และ Admin)
+      if (chatbotToggle) {
+        chatbotToggle.style.display = 'flex';
+        chatbotToggle.style.visibility = 'visible';
+        chatbotToggle.style.opacity = '1';
+        chatbotToggle.style.zIndex = '9999';
+        console.log('Chatbot toggle button shown for authenticated user on all pages');
+      }
+      
+      const CHATBOT_USER_KEY = "volunteer_chatbot_user_{{ user.id }}";
+      try {
+        // ตรวจสอบว่า user คนนี้เคยเห็น chatbot ใน session นี้หรือยัง
+        const hasSeenForUser = sessionStorage.getItem(CHATBOT_USER_KEY);
+        
+        // ถ้ายังไม่เคยเห็นสำหรับ user นี้ ให้แสดง chatbot panel
+        if (!hasSeenForUser) {
+          // เปิด chatbot panel หลังจาก delay เล็กน้อย
+          setTimeout(() => {
+            toggleChatbot(true);
+            sessionStorage.setItem(CHATBOT_USER_KEY, "1");
+            console.log('Chatbot panel auto-opened for first time');
+          }, 1500);
+        } else {
+          console.log('User has already seen chatbot in this session');
+        }
+      } catch (err) {
+        // sessionStorage อาจไม่พร้อมใช้งาน (โหมด private) จึงข้ามไป
+        console.warn("Chatbot session storage unavailable:", err);
+        // แต่ยังแสดง chatbot panel ครั้งแรก
+        setTimeout(() => {
+          toggleChatbot(true);
+          console.log('Chatbot panel opened (sessionStorage unavailable)');
+        }, 1500);
+      }
+      {% else %}
+      // ถ้ายังไม่ login ซ่อนปุ่ม toggle
+      if (chatbotToggle) {
+        chatbotToggle.style.display = 'none';
+      }
+      console.log('Chatbot hidden - user not authenticated');
+      {% endif %}
     }
+
+    // รอให้ DOM พร้อมก่อนทำงาน
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initChatbotWidget);
+    } else {
+      // DOM พร้อมแล้ว
+      initChatbotWidget();
+    }
+
+    // Fallback: เรียกอีกครั้งหลังจาก delay เพื่อให้แน่ใจว่า elements พร้อม (สำหรับทุกหน้า)
+    setTimeout(function() {
+      const chatbotToggle = document.getElementById("chatbot-toggle");
+      const chatbotPanel = document.getElementById("chatbot-panel");
+      
+      {% if user.is_authenticated %}
+      if (chatbotToggle) {
+        // แสดง chatbot toggle button ในทุกหน้า
+        chatbotToggle.style.display = 'flex';
+        chatbotToggle.style.visibility = 'visible';
+        chatbotToggle.style.opacity = '1';
+        chatbotToggle.style.zIndex = '9999';
+        console.log('Fallback: Ensuring chatbot toggle is visible on all pages');
+      }
+      {% else %}
+      if (chatbotToggle) {
+        chatbotToggle.style.display = 'none';
+      }
+      {% endif %}
+    }, 500);
+    
+    // Fallback 2: ตรวจสอบอีกครั้งหลังจาก 1 วินาที
+    setTimeout(function() {
+      {% if user.is_authenticated %}
+      const chatbotToggle = document.getElementById("chatbot-toggle");
+      if (chatbotToggle) {
+        chatbotToggle.style.display = 'flex';
+        chatbotToggle.style.visibility = 'visible';
+        chatbotToggle.style.opacity = '1';
+        chatbotToggle.style.zIndex = '9999';
+        console.log('Final fallback: Chatbot toggle ensured visible');
+      }
+      {% endif %}
+    }, 1000);
   </script>
   {% block scripts %}{% endblock %}
 

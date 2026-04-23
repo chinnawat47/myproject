@@ -4,7 +4,12 @@ django-crispy-forms
 crispy-tailwind
 Pillow
 qrcode
-opencv-python
+
+numpy==1.26.4
+opencv-python==4.10.0.84
+
+pyzbar
 django-allauth
 channels
 djangorestframework
+python-dotenv

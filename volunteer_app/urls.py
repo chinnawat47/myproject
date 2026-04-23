@@ -16,7 +16,12 @@ urlpatterns = [
     # QR code
     path("qr/scan/", views.qr_scan_page, name="qr_scan"),
     path("qr/verify/", views.qr_verify, name="qr_verify"),
+    path("qr/upload/", views.qr_upload, name="qr_upload"),
     path("qr/confirm/<str:token>/", views.qr_confirm, name="qr_confirm"),
+    
+    # Check-in / Check-out
+    path("check-in/", views.check_in, name="check_in"),
+    path("check-out/", views.check_out, name="check_out"),
 
     # โปรไฟล์ผู้ใช้
     path("profile/", views.profile, name="profile"),

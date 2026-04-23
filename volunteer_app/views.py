@@ -11,9 +11,9 @@ from django.urls import reverse
 from .forms import RegistrationForm, ActivityForm, SignupForm, IdeaForm, GroupForm, AdminLoginForm
 from .models import (
     Activity, ActivitySignup, QRScan, IdeaProposal, IdeaVote,
-    Group, GroupMembership, GroupPost, Role, Notification
+    Group, GroupMembership, GroupPost, Role, Notification, CheckInOut
 )
-from .utils import verify_qr_token
+from .utils import verify_qr_token, verify_checkin_token, verify_checkout_token, read_qr_code_from_image
 from .services.notification_service import notify_user, mark_notifications_read
 
 import qrcode
@@ -75,7 +75,17 @@ def register(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.email.split("@")[0]
+            # Generate unique username from email if username is not provided or already exists
+            base_username = user.username or user.email.split("@")[0]
+            username = base_username
+            counter = 1
+            # Ensure username is unique
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{counter}"
+                counter += 1
+            user.username = username
+            # Set email_verified to False for new users
+            user.email_verified = False
             user.save()
             login(request, user)
             return redirect("volunteer_app:profile")
@@ -276,6 +286,10 @@ def activity_detail(request, pk):
     user_signed = request.user.is_authenticated and ActivitySignup.objects.filter(activity=activity, user=request.user).exists()
     can_signup = not activity.is_full()
     qr_token = activity.qr_token()
+    
+    # Generate QR codes for check-in and check-out
+    checkin_token = activity.checkin_token()
+    checkout_token = activity.checkout_token()
 
     buffer = BytesIO()
     # generate QR for a confirm URL that includes signed token
@@ -286,6 +300,22 @@ def activity_detail(request, pk):
         qr_b64 = base64.b64encode(qr_image_data).decode()
     else:
         qr_b64 = None
+    
+    # Generate QR codes for check-in and check-out
+    checkin_qr_b64 = None
+    checkout_qr_b64 = None
+    
+    if checkin_token:
+        buffer_checkin = BytesIO()
+        q_checkin = qrcode.make(request.build_absolute_uri(f"/check-in/?token={checkin_token}"))
+        q_checkin.save(buffer_checkin, format="PNG")
+        checkin_qr_b64 = base64.b64encode(buffer_checkin.getvalue()).decode()
+    
+    if checkout_token:
+        buffer_checkout = BytesIO()
+        q_checkout = qrcode.make(request.build_absolute_uri(f"/check-out/?token={checkout_token}"))
+        q_checkout.save(buffer_checkout, format="PNG")
+        checkout_qr_b64 = base64.b64encode(buffer_checkout.getvalue()).decode()
 
     return render(
         request,
@@ -295,7 +325,11 @@ def activity_detail(request, pk):
             "user_signed": user_signed,
             "can_signup": can_signup,
             "qr_token": qr_token,
-            "qr_b64": qr_b64
+            "qr_b64": qr_b64,
+            "checkin_token": checkin_token,
+            "checkout_token": checkout_token,
+            "checkin_qr_b64": checkin_qr_b64,
+            "checkout_qr_b64": checkout_qr_b64,
         }
     )
 
@@ -441,6 +475,280 @@ def qr_verify(request):
     })
 
 
+@login_required
+def qr_upload(request):
+    """Upload QR code image and verify it to get volunteer hours."""
+    if request.method != "POST":
+        return JsonResponse({
+            "ok": False,
+            "code": "method_not_allowed",
+            "message": "กรุณาใช้ POST method"
+        }, status=405)
+    
+    # Check if image file is provided
+    if 'image' not in request.FILES:
+        return JsonResponse({
+            "ok": False,
+            "code": "no_image",
+            "message": "กรุณาเลือกรูปภาพ QR code"
+        })
+    
+    image_file = request.FILES['image']
+    
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    if image_file.content_type not in allowed_types:
+        return JsonResponse({
+            "ok": False,
+            "code": "invalid_file_type",
+            "message": "รูปแบบไฟล์ไม่ถูกต้อง กรุณาใช้ไฟล์รูปภาพ (JPG, PNG, GIF, WEBP)"
+        })
+    
+    # Validate file size (max 10MB)
+    if image_file.size > 10 * 1024 * 1024:
+        return JsonResponse({
+            "ok": False,
+            "code": "file_too_large",
+            "message": "ไฟล์ใหญ่เกินไป กรุณาเลือกรูปภาพที่มีขนาดไม่เกิน 10MB"
+        })
+    
+    # Read QR code from image
+    success, qr_data, error_message = read_qr_code_from_image(image_file)
+    
+    if not success:
+        return JsonResponse({
+            "ok": False,
+            "code": "qr_read_failed",
+            "message": error_message or "ไม่สามารถอ่าน QR code จากรูปภาพได้"
+        })
+    
+    # Extract token from QR data (could be URL or token)
+    token = qr_data
+    try:
+        # If QR data is a URL, extract token from it
+        from urllib.parse import urlparse
+        parsed_url = urlparse(qr_data)
+        if parsed_url.path:
+            # Try to extract token from URL path
+            path_parts = parsed_url.path.strip('/').split('/')
+            if path_parts:
+                # Check if last part looks like a token (base64-like)
+                potential_token = path_parts[-1]
+                if len(potential_token) > 20:  # Tokens are usually longer
+                    token = potential_token
+    except Exception:
+        pass
+    
+    # Verify token using existing qr_verify logic
+    valid, activity_id = verify_qr_token(token)
+    if not valid:
+        # Try check-in token
+        valid, activity_id = verify_checkin_token(token)
+        if not valid:
+            # Try check-out token
+            valid, activity_id = verify_checkout_token(token)
+            if not valid:
+                return JsonResponse({
+                    "ok": False,
+                    "code": "invalid_token",
+                    "message": "QR code ไม่ถูกต้องหรือหมดอายุแล้ว",
+                    "help": "กรุณาลองอัปโหลด QR code ใหม่หรือติดต่อผู้ดูแลกิจกรรม"
+                })
+    
+    try:
+        activity = Activity.objects.get(pk=activity_id)
+    except Activity.DoesNotExist:
+        return JsonResponse({
+            "ok": False,
+            "code": "activity_not_found",
+            "message": "ไม่พบกิจกรรมนี้ในระบบ",
+            "help": "กรุณาติดต่อผู้ดูแลระบบ"
+        })
+    
+    # Check if activity is cancelled
+    if activity.status == "cancelled":
+        return JsonResponse({
+            "ok": False,
+            "code": "activity_cancelled",
+            "message": "กิจกรรมนี้ถูกยกเลิกแล้ว",
+            "help": "ไม่สามารถยืนยันชั่วโมงสำหรับกิจกรรมที่ถูกยกเลิกได้"
+        })
+    
+    # Require signup existence
+    if not ActivitySignup.objects.filter(activity=activity, user=request.user).exists():
+        return JsonResponse({
+            "ok": False,
+            "code": "not_signed_up",
+            "message": "คุณยังไม่ได้สมัครกิจกรรมนี้",
+            "help": "กรุณาสมัครกิจกรรมก่อนจึงจะสามารถยืนยันได้",
+            "activity": get_activity_details(activity)
+        })
+    
+    # Determine if this is a check-in, check-out, or regular QR scan
+    from django.db import transaction, IntegrityError
+    earned_hours = float(activity.hours_reward)
+    
+    try:
+        with transaction.atomic():
+            # Check token type
+            checkin_valid, _ = verify_checkin_token(token)
+            checkout_valid, _ = verify_checkout_token(token)
+            
+            if checkin_valid:
+                # Handle check-in
+                checkin, created = CheckInOut.objects.get_or_create(
+                    activity=activity,
+                    user=request.user,
+                    check_type="checkin",
+                    defaults={
+                        'token': token,
+                        'ip_address': request.META.get('REMOTE_ADDR'),
+                        'user_agent': request.META.get('HTTP_USER_AGENT', '')[:512],
+                    }
+                )
+                if not created:
+                    return JsonResponse({
+                        "ok": False,
+                        "code": "already_checked_in",
+                        "message": f"คุณได้ check-in กิจกรรมนี้แล้วเมื่อ {checkin.checked_at.strftime('%d/%m/%Y %H:%M')}",
+                        "help": "หากต้องการ check-out กรุณาใช้ QR code สำหรับ check-out",
+                        "activity": get_activity_details(activity),
+                        "checked_in_at": checkin.checked_at.isoformat()
+                    })
+                
+                notify_user(
+                    request.user,
+                    title="Check-in สำเร็จ",
+                    message=f"คุณได้ check-in เข้ากิจกรรม \"{activity.title}\" แล้ว",
+                    category="activity",
+                    target_url=request.build_absolute_uri(reverse("volunteer_app:activity_detail", args=[activity.pk])),
+                )
+                
+                return JsonResponse({
+                    "ok": True,
+                    "code": "checkin_success",
+                    "message": "Check-in สำเร็จ!",
+                    "activity": get_activity_details(activity),
+                    "checked_in_at": checkin.checked_at.isoformat()
+                })
+            
+            elif checkout_valid:
+                # Handle check-out
+                checkin_record = CheckInOut.objects.filter(
+                    activity=activity,
+                    user=request.user,
+                    check_type="checkin"
+                ).first()
+                
+                if not checkin_record:
+                    return JsonResponse({
+                        "ok": False,
+                        "code": "not_checked_in",
+                        "message": "คุณยังไม่ได้ check-in กิจกรรมนี้",
+                        "help": "กรุณา check-in ก่อนจึงจะสามารถ check-out ได้",
+                        "activity": get_activity_details(activity)
+                    })
+                
+                checkout, created = CheckInOut.objects.get_or_create(
+                    activity=activity,
+                    user=request.user,
+                    check_type="checkout",
+                    defaults={
+                        'token': token,
+                        'ip_address': request.META.get('REMOTE_ADDR'),
+                        'user_agent': request.META.get('HTTP_USER_AGENT', '')[:512],
+                    }
+                )
+                
+                if not created:
+                    calculated_hours = float(checkout.calculated_hours) if checkout.calculated_hours else float(activity.hours_reward)
+                    return JsonResponse({
+                        "ok": False,
+                        "code": "already_checked_out",
+                        "message": f"คุณได้ check-out กิจกรรมนี้แล้วเมื่อ {checkout.checked_at.strftime('%d/%m/%Y %H:%M')}",
+                        "help": "คุณได้รับชั่วโมงจิตอาสาแล้ว",
+                        "activity": get_activity_details(activity),
+                        "checked_out_at": checkout.checked_at.isoformat(),
+                        "calculated_hours": calculated_hours
+                    })
+                
+                # Calculate hours from actual time difference
+                from datetime import timedelta
+                time_diff = checkout.checked_at - checkin_record.checked_at
+                hours_worked = time_diff.total_seconds() / 3600.0
+                
+                if hours_worked >= 0.1:
+                    calculated_hours = round(hours_worked, 2)
+                else:
+                    calculated_hours = float(activity.hours_reward)
+                
+                checkout.calculated_hours = calculated_hours
+                checkout.save(update_fields=['calculated_hours'])
+                
+                ActivitySignup.objects.filter(activity=activity, user=request.user).update(status='attended')
+                
+                notify_user(
+                    request.user,
+                    title="Check-out สำเร็จ",
+                    message=f"คุณได้ check-out จากกิจกรรม \"{activity.title}\" แล้ว ได้รับ {calculated_hours:.2f} ชั่วโมงจิตอาสา",
+                    category="hours",
+                    target_url=request.build_absolute_uri(reverse("volunteer_app:profile")),
+                )
+                
+                return JsonResponse({
+                    "ok": True,
+                    "code": "checkout_success",
+                    "message": f"Check-out สำเร็จ! คุณได้รับ {calculated_hours:.2f} ชั่วโมงจิตอาสา",
+                    "activity": get_activity_details(activity),
+                    "checked_in_at": checkin_record.checked_at.isoformat(),
+                    "checked_out_at": checkout.checked_at.isoformat(),
+                    "calculated_hours": calculated_hours,
+                    "time_worked_minutes": int(time_diff.total_seconds() / 60)
+                })
+            
+            else:
+                # Regular QR scan (legacy)
+                scan, created = QRScan.objects.get_or_create(activity=activity, user=request.user, defaults={
+                    'token': token,
+                    'ip_address': request.META.get('REMOTE_ADDR'),
+                    'user_agent': request.META.get('HTTP_USER_AGENT', '')[:512],
+                })
+                if not created:
+                    return JsonResponse({
+                        "ok": False,
+                        "code": "already_attended",
+                        "message": "คุณยืนยันชั่วโมงกิจกรรมนี้แล้ว ได้ {:.1f} ชั่วโมง".format(activity.hours_reward),
+                        "help": "หากเกิดข้อผิดพลาด กรุณาติดต่อผู้ดูแล",
+                        "activity": get_activity_details(activity)
+                    })
+                
+                ActivitySignup.objects.filter(activity=activity, user=request.user).update(status='attended')
+                
+                notify_user(
+                    request.user,
+                    title="ยืนยันชั่วโมงกิจกรรมสำเร็จ",
+                    message=f"คุณได้รับ {earned_hours:.1f} ชั่วโมงจากกิจกรรม \"{activity.title}\"",
+                    category="hours",
+                    target_url=request.build_absolute_uri(reverse("volunteer_app:profile")),
+                )
+                
+                return JsonResponse({
+                    "ok": True,
+                    "code": "success",
+                    "message": "ยืนยันสำเร็จ!",
+                    "hours_reward": earned_hours,
+                    "activity": get_activity_details(activity)
+                })
+                
+    except IntegrityError:
+        return JsonResponse({
+            "ok": False,
+            "code": "database_error",
+            "message": "เกิดข้อผิดพลาดในการบันทึก ลองอีกครั้ง",
+            "help": "หากปัญหายังคงเกิดขึ้น โปรดติดต่อผู้ดูแลระบบ"
+        }, status=500)
+
+
 def qr_confirm(request, token):
     """QR confirmation endpoint - can be accessed via direct URL"""
     if not request.user.is_authenticated:
@@ -525,6 +833,257 @@ def qr_confirm(request, token):
         "activity": activity,
         "hours_reward": earned_hours
     })
+
+
+# ------------------ Check-in / Check-out ------------------
+@login_required
+def check_in(request):
+    """Check-in endpoint for activity attendance tracking."""
+    # Support both POST and GET (for direct URL access)
+    token = request.POST.get("token") or request.POST.get("qr_token") or request.GET.get("token") or request.body.decode("utf-8")
+    if not token:
+        return JsonResponse({
+            "ok": False,
+            "code": "no_token",
+            "message": "กรุณากรอกหรือสแกน QR code"
+        })
+    
+    # Verify check-in token
+    valid, activity_id = verify_checkin_token(token)
+    if not valid:
+        return JsonResponse({
+            "ok": False,
+            "code": "invalid_token",
+            "message": "QR code ไม่ถูกต้องหรือหมดอายุแล้ว",
+            "help": "กรุณาลองสแกน QR code ใหม่ (QR code มีอายุ 5 นาที)"
+        })
+    
+    try:
+        activity = Activity.objects.get(pk=activity_id)
+    except Activity.DoesNotExist:
+        return JsonResponse({
+            "ok": False,
+            "code": "activity_not_found",
+            "message": "ไม่พบกิจกรรมนี้ในระบบ",
+            "help": "กรุณาติดต่อผู้ดูแลระบบ"
+        })
+    
+    # Check if activity is cancelled
+    if activity.status == "cancelled":
+        return JsonResponse({
+            "ok": False,
+            "code": "activity_cancelled",
+            "message": "กิจกรรมนี้ถูกยกเลิกแล้ว",
+            "help": "ไม่สามารถ check-in สำหรับกิจกรรมที่ถูกยกเลิกได้"
+        })
+    
+    # Require signup existence
+    if not ActivitySignup.objects.filter(activity=activity, user=request.user).exists():
+        return JsonResponse({
+            "ok": False,
+            "code": "not_signed_up",
+            "message": "คุณยังไม่ได้สมัครกิจกรรมนี้",
+            "help": "กรุณาสมัครกิจกรรมก่อนจึงจะสามารถ check-in ได้",
+            "activity": get_activity_details(activity)
+        })
+    
+    # Atomic create check-in record (idempotent - 1 check-in per user per activity)
+    from django.db import transaction, IntegrityError
+    
+    try:
+        with transaction.atomic():
+            checkin, created = CheckInOut.objects.get_or_create(
+                activity=activity,
+                user=request.user,
+                check_type="checkin",
+                defaults={
+                    'token': token,
+                    'ip_address': request.META.get('REMOTE_ADDR'),
+                    'user_agent': request.META.get('HTTP_USER_AGENT', '')[:512],
+                    'device_id': request.POST.get('device_id') or request.headers.get('X-Device-Id'),
+                }
+            )
+            
+            if not created:
+                return JsonResponse({
+                    "ok": False,
+                    "code": "already_checked_in",
+                    "message": f"คุณได้ check-in กิจกรรมนี้แล้วเมื่อ {checkin.checked_at.strftime('%d/%m/%Y %H:%M')}",
+                    "help": "หากต้องการ check-out กรุณาใช้ QR code สำหรับ check-out",
+                    "activity": get_activity_details(activity),
+                    "checked_in_at": checkin.checked_at.isoformat()
+                })
+            
+            # Send notification
+            notify_user(
+                request.user,
+                title="Check-in สำเร็จ",
+                message=f"คุณได้ check-in เข้ากิจกรรม \"{activity.title}\" แล้ว",
+                category="activity",
+                target_url=request.build_absolute_uri(reverse("volunteer_app:activity_detail", args=[activity.pk])),
+            )
+            
+            return JsonResponse({
+                "ok": True,
+                "code": "checkin_success",
+                "message": "Check-in สำเร็จ!",
+                "activity": get_activity_details(activity),
+                "checked_in_at": checkin.checked_at.isoformat()
+            })
+            
+    except IntegrityError:
+        return JsonResponse({
+            "ok": False,
+            "code": "database_error",
+            "message": "เกิดข้อผิดพลาดในการบันทึก ลองอีกครั้ง",
+            "help": "หากปัญหายังคงเกิดขึ้น โปรดติดต่อผู้ดูแลระบบ"
+        }, status=500)
+
+
+@login_required
+def check_out(request):
+    """Check-out endpoint for activity attendance tracking and hours calculation."""
+    # Support both POST and GET (for direct URL access)
+    token = request.POST.get("token") or request.POST.get("qr_token") or request.GET.get("token") or request.body.decode("utf-8")
+    if not token:
+        return JsonResponse({
+            "ok": False,
+            "code": "no_token",
+            "message": "กรุณากรอกหรือสแกน QR code"
+        })
+    
+    # Verify check-out token
+    valid, activity_id = verify_checkout_token(token)
+    if not valid:
+        return JsonResponse({
+            "ok": False,
+            "code": "invalid_token",
+            "message": "QR code ไม่ถูกต้องหรือหมดอายุแล้ว",
+            "help": "กรุณาลองสแกน QR code ใหม่ (QR code มีอายุ 5 นาที)"
+        })
+    
+    try:
+        activity = Activity.objects.get(pk=activity_id)
+    except Activity.DoesNotExist:
+        return JsonResponse({
+            "ok": False,
+            "code": "activity_not_found",
+            "message": "ไม่พบกิจกรรมนี้ในระบบ",
+            "help": "กรุณาติดต่อผู้ดูแลระบบ"
+        })
+    
+    # Check if activity is cancelled
+    if activity.status == "cancelled":
+        return JsonResponse({
+            "ok": False,
+            "code": "activity_cancelled",
+            "message": "กิจกรรมนี้ถูกยกเลิกแล้ว",
+            "help": "ไม่สามารถ check-out สำหรับกิจกรรมที่ถูกยกเลิกได้"
+        })
+    
+    # Require signup existence
+    if not ActivitySignup.objects.filter(activity=activity, user=request.user).exists():
+        return JsonResponse({
+            "ok": False,
+            "code": "not_signed_up",
+            "message": "คุณยังไม่ได้สมัครกิจกรรมนี้",
+            "help": "กรุณาสมัครกิจกรรมก่อนจึงจะสามารถ check-out ได้",
+            "activity": get_activity_details(activity)
+        })
+    
+    # Check if user has checked in
+    checkin_record = CheckInOut.objects.filter(
+        activity=activity,
+        user=request.user,
+        check_type="checkin"
+    ).first()
+    
+    if not checkin_record:
+        return JsonResponse({
+            "ok": False,
+            "code": "not_checked_in",
+            "message": "คุณยังไม่ได้ check-in กิจกรรมนี้",
+            "help": "กรุณา check-in ก่อนจึงจะสามารถ check-out ได้",
+            "activity": get_activity_details(activity)
+        })
+    
+    # Atomic create check-out record and calculate hours
+    from django.db import transaction, IntegrityError
+    from datetime import timedelta
+    
+    try:
+        with transaction.atomic():
+            checkout, created = CheckInOut.objects.get_or_create(
+                activity=activity,
+                user=request.user,
+                check_type="checkout",
+                defaults={
+                    'token': token,
+                    'ip_address': request.META.get('REMOTE_ADDR'),
+                    'user_agent': request.META.get('HTTP_USER_AGENT', '')[:512],
+                    'device_id': request.POST.get('device_id') or request.headers.get('X-Device-Id'),
+                }
+            )
+            
+            if not created:
+                # Already checked out - return existing record
+                calculated_hours = float(checkout.calculated_hours) if checkout.calculated_hours else float(activity.hours_reward)
+                return JsonResponse({
+                    "ok": False,
+                    "code": "already_checked_out",
+                    "message": f"คุณได้ check-out กิจกรรมนี้แล้วเมื่อ {checkout.checked_at.strftime('%d/%m/%Y %H:%M')}",
+                    "help": "คุณได้รับชั่วโมงจิตอาสาแล้ว",
+                    "activity": get_activity_details(activity),
+                    "checked_out_at": checkout.checked_at.isoformat(),
+                    "calculated_hours": calculated_hours
+                })
+            
+            # Calculate hours from actual time difference
+            time_diff = checkout.checked_at - checkin_record.checked_at
+            hours_worked = time_diff.total_seconds() / 3600.0  # Convert to hours
+            
+            # Use calculated hours if reasonable (at least 0.1 hours = 6 minutes)
+            # Otherwise fallback to activity.hours_reward
+            if hours_worked >= 0.1:
+                calculated_hours = round(hours_worked, 2)
+            else:
+                # Fallback to activity default hours
+                calculated_hours = float(activity.hours_reward)
+            
+            # Update checkout record with calculated hours
+            checkout.calculated_hours = calculated_hours
+            checkout.save(update_fields=['calculated_hours'])
+            
+            # Mark signup as attended
+            ActivitySignup.objects.filter(activity=activity, user=request.user).update(status='attended')
+            
+            # Send notification
+            notify_user(
+                request.user,
+                title="Check-out สำเร็จ",
+                message=f"คุณได้ check-out จากกิจกรรม \"{activity.title}\" แล้ว ได้รับ {calculated_hours:.2f} ชั่วโมงจิตอาสา",
+                category="hours",
+                target_url=request.build_absolute_uri(reverse("volunteer_app:profile")),
+            )
+            
+            return JsonResponse({
+                "ok": True,
+                "code": "checkout_success",
+                "message": f"Check-out สำเร็จ! คุณได้รับ {calculated_hours:.2f} ชั่วโมงจิตอาสา",
+                "activity": get_activity_details(activity),
+                "checked_in_at": checkin_record.checked_at.isoformat(),
+                "checked_out_at": checkout.checked_at.isoformat(),
+                "calculated_hours": calculated_hours,
+                "time_worked_minutes": int(time_diff.total_seconds() / 60)
+            })
+            
+    except IntegrityError:
+        return JsonResponse({
+            "ok": False,
+            "code": "database_error",
+            "message": "เกิดข้อผิดพลาดในการบันทึก ลองอีกครั้ง",
+            "help": "หากปัญหายังคงเกิดขึ้น โปรดติดต่อผู้ดูแลระบบ"
+        }, status=500)
 
 
 # ------------------ Idea & Vote ------------------
@@ -868,7 +1427,11 @@ def admin_login(request):
                 error = "ชื่อผู้ใช้/อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือไม่ใช่ Admin"
     else:
         form = AdminLoginForm()
-    return render(request, "admin_login.html", {"form": form, "error": error})
+    return render(request, "admin_login.html", {
+        "form": form,
+        "error": error,
+        "is_admin_page": True,
+    })
 
 
 @login_required(login_url="/admin/login/")
@@ -939,6 +1502,7 @@ def admin_dashboard(request):
         "pending_ideas_list": pending_ideas_list,
         "recent_qr_scans": recent_qr_scans,
         "top_users": top_users,
+        "is_admin_page": True,
     })
 
 
@@ -947,7 +1511,10 @@ def admin_dashboard(request):
 def admin_manage_activities(request):
     """จัดการกิจกรรมทั้งหมด (ดู/แก้ไข/ลบ)"""
     activities = Activity.objects.all().order_by("-created_at")
-    return render(request, "admin_manage_activities.html", {"activities": activities})
+    return render(request, "admin_manage_activities.html", {
+        "activities": activities,
+        "is_admin_page": True,
+    })
 
 
 @login_required(login_url="/admin/login/")
@@ -971,7 +1538,10 @@ def admin_edit_activity(request, pk):
         activity.save()
         return redirect("volunteer_app:admin_manage_activities")
     
-    return render(request, "admin_edit_activity.html", {"activity": activity})
+    return render(request, "admin_edit_activity.html", {
+        "activity": activity,
+        "is_admin_page": True,
+    })
 
 
 @login_required(login_url="/admin/login/")
@@ -989,7 +1559,10 @@ def admin_delete_activity(request, pk):
 def admin_manage_ideas(request):
     """ดูและจัดการ idea proposals"""
     ideas = IdeaProposal.objects.all().order_by("-created_at")
-    return render(request, "admin_manage_ideas.html", {"ideas": ideas})
+    return render(request, "admin_manage_ideas.html", {
+        "ideas": ideas,
+        "is_admin_page": True,
+    })
 
 
 @login_required(login_url="/admin/login/")
@@ -997,7 +1570,10 @@ def admin_manage_ideas(request):
 def admin_manage_users(request):
     """จัดการผู้ใช้ทั้งหมด"""
     users = User.objects.all().prefetch_related("roles").order_by("-date_joined")
-    return render(request, "admin_manage_users.html", {"users": users})
+    return render(request, "admin_manage_users.html", {
+        "users": users,
+        "is_admin_page": True,
+    })
 
 
 @login_required(login_url="/admin/login/")
@@ -1031,6 +1607,7 @@ def admin_edit_user(request, pk):
         "user": user,
         "roles": roles,
         "user_role_ids": set(user.roles.values_list("id", flat=True)),
+        "is_admin_page": True,
     })
 
 
@@ -1174,6 +1751,7 @@ def admin_add_volunteer_hours(request):
     return render(request, "admin_add_hours.html", {
         "users": users,
         "activities": activities,
+        "is_admin_page": True,
     })
 
 
@@ -1189,6 +1767,7 @@ def admin_view_user_hours(request, user_id):
         "user": user,
         "scans": scans,
         "total_hours": total_hours,
+        "is_admin_page": True,
     })
 
 
@@ -1208,3 +1787,5 @@ def error_404(request, exception=None):
 def error_500(request):
     """หน้า 500 - ข้อผิดพลาดเซิร์ฟเวอร์"""
     return render(request, "500.html", status=500)
+
+
